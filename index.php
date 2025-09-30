@@ -1,3 +1,25 @@
+<?php
+session_start();
+require 'INCLUDES/db.php';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    //Préparation et execution de la requete SQL
+    $stmt = $conn->prepare("SELECT * FROM Utilisateurs WHERE Identifiant_User = :username");
+    $stmt->execute(['username' => $username]);
+    $user = $stmt->fetch();
+    if ($user && password_verify($password, $user['password'])) {
+        //Connexion établi
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $user['username'];
+        header('Location: SECRETARY/dashboard-secretary.php');
+        exit;
+    } else {
+        echo "Identifiants incorrects";
+    }
+}
+?>
 <!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
