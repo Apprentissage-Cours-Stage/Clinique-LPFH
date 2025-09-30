@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="POST">
              <div class="input-group">
                 <label for="username">Identifiant</label>
-                <input type="text" id="username" placeholder="Votre identifiant" required>
+                <input type="text" id="username" name="username" placeholder="Votre identifiant" required>
              </div>
              <div class="input-group">
                 <label for="password">Mot de passe</label>
