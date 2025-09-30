@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: SECRETARY/dashboard-secretary.php');
         exit;
     } else {
-        echo "Identifiants incorrects";
+        $error = "Identifiants incorrects";
     }
 }
 ?>
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="background-shape2"></div>
         <img src="INCLUDES/IMAGES/LPFSLogo.png" alt="Logo LPFS">
         <h2>Connexion Intranet</h2>
-        <form>
+        <form method="POST">
              <div class="input-group">
                 <label for="username">Identifiant</label>
                 <input type="text" id="username" placeholder="Votre identifiant" required>
@@ -42,6 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="password">Mot de passe</label>
                 <input type="password" id="password" name="password" placeholder="Votre mot de passe" required>
              </div>
+             <?php if($error): ?>
+                <p class="error-message"><?= htmlspecialchars($error) ?></p>
+             <?php endif; ?>
              <button type="submit" class="login-btn">Se connecter</button>
         </form>
         <div class="footer">
