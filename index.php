@@ -7,9 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
 
     //Préparation et execution de la requete SQL
-    $stmt = $conn->prepare("SELECT * FROM utilisateurs WHERE Identifiant_User = :username");
-    $stmt->execute(['username' => $username]);
-    $user = $stmt->fetch();
+    $stmt = $conn->prepare("SELECT * FROM utilisateurs WHERE Identifiant_User = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
     if ($user && password_verify($password, $user['password'])) {
         //Connexion établi
         $_SESSION['user_id'] = $user['id'];
