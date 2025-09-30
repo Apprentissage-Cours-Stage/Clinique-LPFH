@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
 
     //Préparation et execution de la requete SQL
-    $stmt = $conn->prepare("SELECT * FROM Utilisateurs WHERE Identifiant_User = :username");
+    $stmt = $conn->prepare("SELECT * FROM utilisateurs WHERE Identifiant_User = :username");
     $stmt->execute(['username' => $username]);
     $user = $stmt->fetch();
     if ($user && password_verify($password, $user['password'])) {
