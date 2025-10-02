@@ -24,7 +24,7 @@ $user_id = $_SESSION['user_id'];
                 <li>Enregistrer une Pré-admission</li>
                 <li>Liste des Patients</li>
                 <li>Liste des Pré-admissions</li>
-                <li><a href="logout.php" style="color:#fff; text-decoration:none;">Déconnexion</a></li>
+                <li><a href="../logout.php" style="color:#fff; text-decoration:none;">Déconnexion</a></li>
             </ul>
         </div>
         <div class="main-content">
