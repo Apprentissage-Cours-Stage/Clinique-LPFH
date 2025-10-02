@@ -1,25 +1,30 @@
 <?php
 session_start();
-require 'INCLUDES/db.php';
+require 'INCLUDES/db.php'; // contient la connexion mysqli
 $error = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
 
-    //Préparation et execution de la requete SQL
-    $stmt = $conn->prepare("SELECT * FROM utilisateurs WHERE Identifiant_User = ?");
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
+
+    // Préparation de la requête
+    $stmt = $conn->prepare("SELECT * FROM Utilisateurs WHERE LOWER(Identifiant_User) = LOWER(?)");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
-    if ($user && $password === $user['password']) {
-        //Connexion établi
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $user['username'];
-        header('Location: SECRETARY/dashboard-secretary.php');
-        exit;
+
+    if ($user) {
+        if ($password === $user['MDP']) { // si en clair
+            $_SESSION['user_id'] = $user['ID_Employé'];
+            $_SESSION['username'] = $user['Identifiant_User'];
+            header('Location: SECRETARY/dashboard-secretary.php');
+            exit;
+        } else {
+            $error = "Mot de passe incorrect";
+        }
     } else {
-        $error = "Identifiants incorrects";
+        $error = "Identifiant introuvable";
     }
 }
 ?>
