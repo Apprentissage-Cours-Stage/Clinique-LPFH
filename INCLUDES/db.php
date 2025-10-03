@@ -1,9 +1,9 @@
 <?php
 //Changer le compte selon le compte utiliser (SECRETARY, SECRET@RYLPFS2025)/(ADMINISTRATEUR)
-$host = "192.168.100.14";
+$host = "localhost";
 $user = "root";
-$password = "sio2024";
-$dbname = "CliniqueLPFS";
+$password = "";
+$dbname = "cliniquelpfs";
 
 $conn = new mysqli($host, $user, $password, $dbname);
 //Verification de la connexion

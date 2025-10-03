@@ -30,20 +30,6 @@ $user_id = $_SESSION['user_id'];
         <div class="main-content">
             <h1>Bienvenue !</h1>
             <p>Votre ID utilisateur : <?php echo htmlspecialchars($user_id); ?></p>
-            <div class="cards">
-                <div class="card">
-                    <h3>Rendez-vous Aujourd'hui</h3>
-                    <p>–</p>
-                </div>
-                <div class="card">
-                    <h3>Messages</h3>
-                    <p>–</p>
-                </div>
-            </div>
-            <div class="section">
-                <h2>Prochains Rendez-vous</h2>
-                <p>–</p>
-            </div>
         </div>
         <div class="background-shape"></div>
         <div class="background-shape2"></div>

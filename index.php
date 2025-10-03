@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['password']);
 
     // Préparation de la requête
-    $stmt = $conn->prepare("SELECT * FROM Utilisateurs WHERE LOWER(Identifiant_User) = LOWER(?)");
+    $stmt = $conn->prepare("SELECT * FROM utilisateurs WHERE LOWER(Identifiant_User) = LOWER(?)");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
