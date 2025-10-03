@@ -4,7 +4,7 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: ../index.php');
     exit;
 }
-$user_id = $_SESSION['user_id'];
+$username = $_SESSION['username'];
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -30,7 +30,7 @@ $user_id = $_SESSION['user_id'];
         </div>
         <div class="main-content">
             <h1>Bienvenue !</h1>
-            <p>Votre ID utilisateur : <?php echo htmlspecialchars($user_id); ?></p>
+            <p>Votre ID utilisateur : <?php echo htmlspecialchars($username); ?></p>
         </div>
         <div class="background-shape"></div>
         <div class="background-shape2"></div>
