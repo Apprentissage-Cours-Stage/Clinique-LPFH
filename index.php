@@ -18,13 +18,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($password === $user['MDP']) { // si en clair
             $_SESSION['user_id'] = $user['ID_Employé'];
             $_SESSION['username'] = $user['Identifiant_User'];
-            header('Location: SECRETARY/dashboard-secretary.php');
-            exit;
         } else {
             $error = "Mot de passe incorrect";
         }
     } else {
         $error = "Identifiant introuvable";
+    }
+
+    $stmtrole = $conn->prepare("SELECT R.Libellé_Role 
+                                FROM role R
+                                INNER JOIN personnel P ON P.Role_Personnel = R.ID_Role
+                                INNER JOIN utilisateurs U ON U.ID_Employé = P.ID_Personnel
+                                WHERE U.ID_Employé = (?);");
+    $stmtrole->bind_param("i", $user['ID_Employé']);
+    $stmtrole->execute();
+    $resultrole = $stmtrole->get_result();
+    $role = $resultrole->fetch_assoc();
+
+    if($role) {
+        $_SESSION['role'] = $role['Libellé_Role'];
+        switch (strtolower($_SESSION['role'])) {
+            case 'secrétaire':
+                header('Location: SECRETARY/dashboard-secretary.php');
+                exit;
+            case 'administrateur':
+                header('Location: ADMIN/dashboard-admin.php');
+                exit;
+            default:
+                $error = "Rôle non reconnu";
+        }
+    } else {
+        $error = "Impossible de déterminer le rôle";
     }
 }
 ?>
