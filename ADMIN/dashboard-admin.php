@@ -18,7 +18,7 @@ $user_id = $_SESSION['user_id'];
     <div class="dashboard-container">
         <div class="sidebar">
             <img src="../INCLUDES/IMAGES/LPFSLogo.png" alt="Logo Clinique" class="logo">
-            <h2>Administrateur</h2>
+            <h2>Panel Administrateur</h2>
             <ul class="menu">
                 <li>Accueil</li>
                 <li>Enregistrer une donnée dans la Base de données</li>

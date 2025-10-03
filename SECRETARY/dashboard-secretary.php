@@ -18,11 +18,10 @@ $user_id = $_SESSION['user_id'];
     <div class="dashboard-container">
         <div class="sidebar">
             <img src="../INCLUDES/IMAGES/LPFSLogo.png" alt="Logo Clinique" class="logo">
-            <h2>Secrétaire</h2>
+            <h2>Panel Secrétaire</h2>
             <ul class="menu">
                 <li>Accueil</li>
                 <li>Enregistrer une Pré-admission</li>
-                <li>Liste des Patients</li>
                 <li>Liste des Pré-admissions</li>
                 <li><a href="../logout.php" style="color:#fff; text-decoration:none;">Déconnexion</a></li>
             </ul>
