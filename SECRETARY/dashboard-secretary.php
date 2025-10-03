@@ -11,7 +11,7 @@ $user_id = $_SESSION['user_id'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Secrétaire</title>
+    <title>Dashboard - Secrétaire</title>
     <link rel="stylesheet" href="../CSS/dashboard.css">
 </head>
 <body>
