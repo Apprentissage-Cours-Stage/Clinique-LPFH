@@ -22,3 +22,7 @@ GRANT SELECT, INSERT ON `CliniqueLPFS`.`SousTutellede` TO `ClaireDPT_secretariat
 GRANT SELECT, INSERT ON `CliniqueLPFS`.`PiecesJoints` TO `ClaireDPT_secretariat`@`%`;
 GRANT SELECT ON `CliniqueLPFS`.`Service` TO `ClaireDPT_secretariat`@`%`;
 GRANT SELECT, INSERT ON `CliniqueLPFS`.`Responsable` TO `ClaireDPT_secretariat`@`%`;
+
+-- Compte ADMINLPFS
+CREATE USER `ADMINLPFS`@`%` IDENTIFIED BY PASSWORD `ADMINLPFS2025`;
+GRANT ALL PRIVILEGES ON `cliniquelpfs`.* TO `ADMINLPFS`@`%`;
