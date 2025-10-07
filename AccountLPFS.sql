@@ -5,7 +5,7 @@ GRANT SELECT ON `CliniqueLPFS`.`Role` TO `AuthentificationLPFS2025`@`%`;
 GRANT SELECT ON `CliniqueLPFS`.`Utilisateurs` TO `AuthentificationLPFS2025`@`%`;
 
 -- Compte ClaireDPT
-CREATE USER `ClaireDPT_secretariat`@`%` IDENTIFIED BY PASSWORD 'Cl@ireDPT1993';
+CREATE USER `ClaireDPT_secretariat`@`%` IDENTIFIED BY 'Cl@ireDPT1993';
 GRANT SELECT ON `CliniqueLPFS`.`TypeHospitalisation` TO `ClaireDPT_secretariat`@`%`;
 GRANT SELECT, INSERT ON `CliniqueLPFS`.`Patient` TO `ClaireDPT_secretariat`@`%`;
 GRANT SELECT ON `CliniqueLPFS`.`Personnel` TO `ClaireDPT_secretariat`@`%`;
@@ -23,5 +23,5 @@ GRANT SELECT ON `CliniqueLPFS`.`Service` TO `ClaireDPT_secretariat`@`%`;
 GRANT SELECT, INSERT ON `CliniqueLPFS`.`Responsable` TO `ClaireDPT_secretariat`@`%`;
 
 -- Compte ADMINLPFS
-CREATE USER `ADMINLPFS`@`%` IDENTIFIED BY PASSWORD `ADMINLPFS2025`;
+CREATE USER `ADMINLPFS`@`%` IDENTIFIED BY `ADMINLPFS2025`;
 GRANT ALL PRIVILEGES ON `cliniquelpfs`.* TO `ADMINLPFS`@`%`;
