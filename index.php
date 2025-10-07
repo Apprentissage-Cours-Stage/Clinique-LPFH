@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['password']);
 
     // Préparation de la requête
-    $stmt = $conn->prepare("SELECT * FROM utilisateurs WHERE LOWER(Identifiant_User) = LOWER(?)");
+    $stmt = $conn->prepare("SELECT * FROM Utilisateurs WHERE LOWER(Identifiant_User) = LOWER(?)");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $stmtrole = $conn->prepare("SELECT R.Libellé_Role 
-                                FROM role R
+                                FROM Role R
                                 INNER JOIN personnel P ON P.Role_Personnel = R.ID_Role
                                 INNER JOIN utilisateurs U ON U.ID_Employé = P.ID_Personnel
                                 WHERE U.ID_Employé = (?);");

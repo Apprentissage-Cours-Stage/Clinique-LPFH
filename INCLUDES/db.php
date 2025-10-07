@@ -1,7 +1,7 @@
 <?php
 //Changer le compte selon le compte utiliser (SECRETARY, SECRET@RYLPFS2025)/(ADMINISTRATEUR)
-$host = "localhost";
-$dbname = "cliniquelpfs";
+$host = "192.168.20.15";
+$dbname = "CliniqueLPFS";
 $master_user = "AuthentificationLPFS2025";
 $master_pass = "AuthLPFS2025";
 
@@ -17,7 +17,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $sql = $conn->prepare("SELECT CompteSQL, MDP FROM utilisateurs WHERE Identifiant_User = (?) AND MDP = (?)");
+    $sql = $conn->prepare("SELECT CompteSQL, MDP FROM Utilisateurs WHERE Identifiant_User = (?) AND MDP = (?)");
     $sql->bind_param("ss", $username, $password);
     $sql->execute();
     $result = $sql->get_result();
