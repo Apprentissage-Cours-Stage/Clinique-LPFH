@@ -1,6 +1,5 @@
 -- Compte d'authentification
 CREATE USER 'AuthentificationLPFS2025'@'%' IDENTIFIED BY 'AuthLPFS2025';
-
 GRANT SELECT ON `CliniqueLPFS`.`Personnel` TO `AuthentificationLPFS2025`@`%`;
 GRANT SELECT ON `CliniqueLPFS`.`Role` TO `AuthentificationLPFS2025`@`%`;
 GRANT SELECT ON `CliniqueLPFS`.`Utilisateurs` TO `AuthentificationLPFS2025`@`%`;
