@@ -97,3 +97,9 @@ body {
   border-radius: 50%;
   z-index: -1;
 }
+
+.g-recaptcha {
+  margin: 15px 0;
+  display: flex;
+  justify-content: center;
+}

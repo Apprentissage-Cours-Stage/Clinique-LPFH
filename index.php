@@ -4,6 +4,20 @@ require 'INCLUDES/db.php'; // contient la connexion mysqli
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $recaptcha_secret = '6LcqNeErAAAAAEnuRsdYj1lrJM7SKtga1U-PT-YA';
+    $recaptcha_response = $_POST['g-recaptcha-response'];
+
+    $response = file_get_contents(
+        "https://www.google.com/recaptcha/api/siteverify?secret="
+        . $recaptcha_secret . "&response=" . $recaptcha_response
+    );
+
+    $response_keys = json_decode($response, true);
+
+    if (intval($response_keys["success"]) !== 1) {
+        die("Captcha invalide. Veuillez réessayer.");
+    }
+
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
 
@@ -77,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
              <?php if($error): ?>
                 <p class="error-message"><?= htmlspecialchars($error) ?></p>
              <?php endif; ?>
+             <div class="g-recaptcha" data-sitekey="6LcqNeErAAAAAOkhlGXH9V2KzZU1JpfMR1Qea9oU"></div>
              <button type="submit" class="login-btn">Se connecter</button>
         </form>
         <div class="footer">
@@ -84,3 +99,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </body>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
