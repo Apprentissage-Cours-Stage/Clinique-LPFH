@@ -33,7 +33,6 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
             die("Connexion échouée avec le compte nominatif : ".$conn->connect_error);
         }
         $conn->set_charset("utf8");
-        echo "Connexion réussie pour $username avec le rôle".$_SESSION['role'];
     } else {
         die("Identifiants incorrects");
     }
