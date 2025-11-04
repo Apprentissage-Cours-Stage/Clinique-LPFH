@@ -1,6 +1,8 @@
 // Sélection des champs
 const dateInput = document.getElementById('date');
-const timeInput = document.getElementById('time');
+const timeInput = document.getElementById('heure');
+const timeError = document.getElementById('time-error');
+const form = document.querySelector('.form-container form'); // ton formulaire
 
 // Mettre à jour la date minimale
 function setMinDate() {
@@ -33,14 +35,52 @@ function updateMinTime() {
     }
 }
 
+function checkTimeValidity() {
+    const now = new Date();
+    const selectedDate = new Date(dateInput.value);
+    const timeValue = timeInput.value;
+
+    // Si aucun temps ou date sélectionné, cacher le message
+    if (!timeValue || !dateInput.value) {
+        timeError.style.display = 'none';
+        return;
+    }
+
+    // Vérifier si la date est aujourd'hui
+    if (selectedDate.toDateString() === now.toDateString()) {
+        const [hh, mm] = timeValue.split(':').map(Number);
+        if (hh < now.getHours() || (hh === now.getHours() && mm < now.getMinutes())) {
+            // Heure invalide
+            timeError.style.display = 'block';
+            return false;
+        }
+    }
+
+    // Heure valide
+    timeError.style.display = 'none';
+    return true;
+}
 // Initialisation
 setMinDate();
 updateMinTime();
 
-// Mettre à jour l'heure à chaque changement de date
-dateInput.addEventListener('change', updateMinTime);
+// Événements
+dateInput.addEventListener('change', () => {
+    updateMinTime();
+    checkTimeValidity();
+});
 
-// Mettre à jour toutes les minutes si l'utilisateur reste sur la page
+timeInput.addEventListener('input', checkTimeValidity);
+
+// Vérifier à la soumission du formulaire
+form.addEventListener('submit', function(e) {
+    if (!checkTimeValidity()) {
+        e.preventDefault();
+        timeInput.focus();
+    }
+});
+
+// Mise à jour toutes les minutes si l'utilisateur reste sur la page
 setInterval(() => {
     if (dateInput.value === new Date().toISOString().split('T')[0]) {
         updateMinTime();

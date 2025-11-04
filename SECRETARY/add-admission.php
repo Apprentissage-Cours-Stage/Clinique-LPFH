@@ -78,6 +78,7 @@ try {
                     <div class="form-group">
                         <label for="heure">Heure de l'hospitalisation :</label>
                         <input type="time" id="heure" name="heure" required>
+                        <small id="time-error" style="color: red; display: none;">L'heure ne peut pas être dans le passé !</small>
                     </div>
                     <!-- Médecin -->
                     <div class="form-group">
