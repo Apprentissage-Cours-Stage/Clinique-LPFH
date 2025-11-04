@@ -1,6 +1,6 @@
 <?php
 //Changer le compte selon le compte utiliser (SECRETARY, SECRET@RYLPFS2025)/(ADMINISTRATEUR)
-$host = "192.168.100.14";
+$host = "localhost";
 $dbname = "CliniqueLPFS";
 $master_user = "AuthentificationLPFS2025";
 $master_pass = "AuthLPFS2025";
