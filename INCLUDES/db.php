@@ -1,40 +1,53 @@
 <?php
-//Changer le compte selon le compte utiliser (SECRETARY, SECRET@RYLPFS2025)/(ADMINISTRATEUR)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 $host = "localhost";
 $dbname = "CliniqueLPFS";
 $master_user = "AuthentificationLPFS2025";
 $master_pass = "AuthLPFS2025";
 
-$conn = new mysqli($host, $master_user, $master_pass, $dbname);
-//Verification de la connexion
-if ($conn->connect_error) {
-    die("Connexion échouée: ".$conn->connect_error);
+// Connexion maître
+$masterConn = new mysqli($host, $master_user, $master_pass, $dbname);
+if ($masterConn->connect_error) {
+    die("Connexion échouée: " . $masterConn->connect_error);
 }
-//Encodage UTF-8
-$conn->set_charset("utf8");
+$masterConn->set_charset("utf8");
 
-if (isset($_POST['username']) && isset($_POST['password'])) {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+// Vérifier si l'utilisateur est connecté via le formulaire d'authentification
+if (isset($_SESSION['username']) && isset($_SESSION['password'])) {
+    $username = $_SESSION['username'];
+    $password = $_SESSION['password'];
 
-    $sql = $conn->prepare("SELECT CompteSQL, MDP FROM Utilisateurs WHERE Identifiant_User = (?) AND MDP = (?)");
-    $sql->bind_param("ss", $username, $password);
-    $sql->execute();
-    $result = $sql->get_result();
+    // Recherche dans la table users du compte SQL nominatif
+    $stmt = $masterConn->prepare("SELECT CompteSQL, MDP FROM Utilisateurs WHERE Identifiant_User = ? AND MDP = ? LIMIT 1");
+    $stmt->bind_param("ss", $username, $password);
+    $stmt->execute();
+    $stmt->bind_result($sql_user, $sql_pass);
 
-    if ($result->num_rows === 1) {
-        $row = $result->fetch_assoc();
-        $_SESSION['username'] = $username;
-
-        $sql_user = $row['CompteSQL'];
-        $sql_pass = $row['MDP'];
-        $conn = new mysqli($host, $sql_user, $sql_pass, $dbname);
-        if ($conn->connect_error) {
-            die("Connexion échouée avec le compte nominatif : ".$conn->connect_error);
-        }
-        $conn->set_charset("utf8");
-    } else {
-        die("Identifiants incorrects");
+    if ($stmt->fetch()) {
+        // On a trouvé un compte SQL nominatif
+        $_SESSION['sql_user'] = $sql_user;
+        $_SESSION['sql_pass'] = $sql_pass;
     }
+    $stmt->close();
+}
+
+// Si l'utilisateur est déjà connecté et qu'on a enregistré le compte SQL nominatif :
+if (isset($_SESSION['sql_user']) && isset($_SESSION['sql_pass'])) {
+    $sql_user = $_SESSION['sql_user'];
+    $sql_pass = $_SESSION['sql_pass'];
+    $nominalConn = new mysqli($host, $sql_user, $sql_pass, $dbname);
+
+    if ($nominalConn->connect_error) {
+        die("Connexion échouée avec le compte nominatif : " . $nominalConn->connect_error);
+    }
+
+    $nominalConn->set_charset("utf8");
+    $conn = $nominalConn; // <- variable universelle accessible partout
+} else {
+    // Si pas encore connecté, on reste sur la connexion maître
+    $conn = $masterConn;
 }
 ?>
