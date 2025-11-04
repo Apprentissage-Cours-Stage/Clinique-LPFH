@@ -39,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($password === $user['MDP']) { // si en clair
                 $_SESSION['user_id'] = $user['ID_Employé'];
                 $_SESSION['username'] = $user['Identifiant_User'];
+                $_SESSION['password'] = $user['MDP'];
             } else {
                 $error = "Mot de passe incorrect";
             }
