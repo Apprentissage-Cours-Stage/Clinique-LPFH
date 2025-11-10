@@ -234,7 +234,7 @@ body {
     font-size: 16px;
 }
 
-button[type="submit"] {
+button[type="button"] {
     display: block;
     margin: 25px auto 0;
     padding: 12px 25px;
@@ -246,6 +246,6 @@ button[type="submit"] {
     font-size: 16px;
 }
 
-button[type="submit"]:hover {
+button[type="button"]:hover {
     background: #0056b3;
 }
