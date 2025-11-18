@@ -226,7 +226,8 @@ body {
 
 .form-group select,
 .form-group input[type="date"],
-.form-group input[type="time"] {
+.form-group input[type="time"],
+.form-group input[type="text"] {
     width: 100%;
     padding: 12px;
     border: 1px solid #ccc;
@@ -234,7 +235,8 @@ body {
     font-size: 16px;
 }
 
-button[type="button"] {
+button[type="button"],
+button[type="submit"] {
     display: block;
     margin: 25px auto 0;
     padding: 12px 25px;
@@ -246,6 +248,32 @@ button[type="button"] {
     font-size: 16px;
 }
 
-button[type="button"]:hover {
+button[type="button"]:hover,
+button[type="submit"]:hover {
     background: #0056b3;
+}
+
+/* Alignement des boutons de navigation */
+.button-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.button-row button {
+    width: 48%;
+}
+
+.married-row {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* espace entre la checkbox et le champ */
+}
+
+.married-row input[type="text"] {
+    flex: 1; /* le champ prend le reste de la ligne */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
 }
