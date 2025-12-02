@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
         nomNaissance.value = data.nomNaissance || '';
         prenom.value = data.prenom || '';
         datenaissance.value = data.datenaissance || '';
-        addresse.value = data.addresse || '';
+        addresse.value = data.numaddresse + " " +data.addresse || '';
         cp.value = data.cp || '';
         ville.value = data.ville || '';
         telephone.value = data.telephone || '';
@@ -286,13 +286,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveStep3Data() {
+        const {num, rue} = splitNumAndRue(addresse.value);
         const data = {
             civilité: civilité.value,
             nomNaissance: nomNaissance.value,
             nomEpouse: isMarried.checked ? nomEpouse.value : '',
             prenom: prenom.value,
             datenaissance: datenaissance.value,
-            addresse: addresse.value,
+            numaddresse: num,
+            addresse: rue,
             cp: cp.value,
             ville: ville.value,
             telephone: telephone.value,
@@ -309,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
         NomPP.value = data.NomPP || '';
         PrenomPP.value = data.PrenomPP || '';
         TelPP.value = data.TelPP || '';
-        RuePP.value = data.RuePP || '';
+        RuePP.value = (data.NumRuePP || '') + (data.AdressePP ? ' ' + data.AdressePP : '');
         CPPP.value = data.CPPP || '';
         VillePP.value = data.VillePP || '';
         // Personne de confiance
@@ -317,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
             NomPC.value = data.NomPC || '';
             PrenomPC.value = data.PrenomPC || '';
             TelPC.value = data.TelPC || '';
-            RuePC.value = data.RuePC || '';
+            RuePC.value = (data.NumRuePC || '') + (data.AdressePC ? ' ' + data.AdressePC : '');
             CPPC.value = data.CPPC || '';
             VillePC.value = data.VillePC || '';
         } else {
@@ -332,32 +334,38 @@ document.addEventListener('DOMContentLoaded', () => {
         NomResp.value = data.NomResp || '';
         PrenomResp.value = data.PrenomResp || '';
         TelResp.value = data.TelResp || '';
-        RueResp.value = data.RueResp || '';
+        AdresseResp.value = (data.NumRueResp || '') + (data.AdresseResp ? ' ' + data.AdresseResp : '');
         CPResp.value = data.CPResp || '';
         VilleResp.value = data.VilleResp || '';
         MailResp.value = data.MailResp || '';
     }
 
     function saveStep4Data() {
+        const {num: numPP, rue: ruePP} = splitNumAndRue(RuePP.value || '');
+        const {num: numPC, rue: ruePC} = splitNumAndRue(RuePC.value || '');
+        const {num: numResp, rue: rueResp} = splitNumAndRue(RueResp.value || '');
         const data = {
             NomPP: NomPP.value,
             PrenomPP: PrenomPP.value,
             TelPP: TelPP.value,
-            RuePP: RuePP.value,
+            NumRuePP: numPP,
+            AdressePP: ruePP,
             CPPP: CPPP.value,
             VillePP: VillePP.value,
 
             NomPC: !isMultiPersonne.checked ? NomPC.value : '',
             PrenomPC: !isMultiPersonne.checked ? PrenomPC.value : '',
             TelPC: !isMultiPersonne.checked ? TelPC.value : '',
-            RuePC: !isMultiPersonne.checked ? RuePC.value : '',
+            NumRuePC: !isMultiPersonne.checked ? numPC : '',
+            AdressePC: !isMultiPersonne.checked ? ruePC : '',
             CPPC: !isMultiPersonne.checked ? CPPC.value : '',
             VillePC: !isMultiPersonne.checked ? VillePC.value : '',
 
             NomResp: NomResp.value,
             PrenomResp: PrenomResp.value,
             TelResp: TelResp.value,
-            RueResp: RueResp.value,
+            NumRueResp: numResp,
+            AdresseResp: rueResp,
             CPResp: CPResp.value,
             VilleResp: VilleResp.value,
             MailResp: MailResp.value
@@ -606,7 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('cardPrenom').textContent = data3.prenom;
         document.getElementById('cardDOB').textContent = data3.datenaissance;
         document.getElementById('cardEpouse').textContent = data3.nomEpouse || 'Pas Marié';
-        document.getElementById('cardAdresse').textContent = data3.addresse;
+        document.getElementById('cardAdresse').textContent = (data3.numaddresse || '') + (data3.addresse ? ' ' + data3.addresse : '');
         document.getElementById('cardCP').textContent = data3.cp;
         document.getElementById('cardVille').textContent = data3.ville;
         document.getElementById('cardTel').textContent = data3.telephone;
@@ -642,14 +650,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('cardNomPrev').textContent = data4.NomPP;
         document.getElementById('cardPrenomPrev').textContent = data4.PrenomPP;
         document.getElementById('cardTelPrev').textContent = data4.TelPP;
-        document.getElementById('cardRuePrev').textContent = data4.RuePP;
+        document.getElementById('cardRuePrev').textContent =  (data4.NumRuePP || '') + (data4.AdressePP ? ' ' + data4.AdressePP : '');
         document.getElementById('cardCPPrev').textContent = data4.CPPP;
         document.getElementById('cardVillePrev').textContent = data4.VillePP;
         if(data4.NomPC) {
             document.getElementById('cardNomConf').textContent = data4.NomPC;
             document.getElementById('cardPrenomConf').textContent = data4.PrenomPC;
             document.getElementById('cardTelConf').textContent = data4.TelPC;
-            document.getElementById('cardRueConf').textContent = data4.RuePC;
+            document.getElementById('cardRueConf').textContent = (data4.NumRuePC || '') + (data4.AdressePC ? ' ' + data4.AdressePC : '');
             document.getElementById('cardCPConf').textContent = data4.CPPC;
             document.getElementById('cardVilleConf').textContent = data4.VillePC;
         } else {
@@ -659,7 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('cardNomResp').textContent = data4.NomResp;
             document.getElementById('cardPrenomResp').textContent = data4.PrenomResp;
             document.getElementById('cardTelResp').textContent = data4.TelResp;
-            document.getElementById('cardRueResp').textContent = data4.RueResp;
+            document.getElementById('cardRueResp').textContent = (data4.NumRueResp || '') + (data4.AdresseResp ? ' ' + data4.AdresseResp : '');
             document.getElementById('cardCPResp').textContent = data4.CPResp;
             document.getElementById('cardVilleResp').textContent = data4.VilleResp;
         } else {
@@ -670,7 +678,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!saved) return;
         const data1 = JSON.parse(saved);
         //Hospitalisation
-        document.getElementById('cardTypeHospi').textContent = data1.typeHosp;
         document.getElementById('cardDateHospi').textContent = data1.date;
         document.getElementById('cardHeureHospi').textContent = data1.heure;
     }
@@ -689,4 +696,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.editSection = editSection;
+
+    document.getElementById('submitAll').addEventListener('click', () => {
+    // On récupère toutes les données stockées en sessionStorage
+        const step1 = JSON.parse(sessionStorage.getItem('step1Data') || '{}');
+        const step2 = JSON.parse(sessionStorage.getItem('step2Data') || '{}');
+        const step3 = JSON.parse(sessionStorage.getItem('step3Data') || '{}');
+        const step4 = JSON.parse(sessionStorage.getItem('step4Data') || '{}');
+        const step5 = JSON.parse(sessionStorage.getItem('step5Data') || '{}');
+        const step6 = JSON.parse(sessionStorage.getItem('step6Data') || '{}');
+        // On fusionne toutes les données
+        const allData = { ...step1, ...step2, ...step3, ...step4, ...step5, ...step6 };
+        // Envoi via AJAX/fetch
+        fetch('../INCLUDES/submitBDD.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(allData)
+        })
+        .then(res => res.json())
+        .then(result => {
+            if(result.success){
+                alert('Toutes les données ont été enregistrées.');
+                sessionStorage.clear();
+            } else {
+                alert('Erreur: ' + result.message);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Erreur réseau ou serveur');
+        });
+    });
+
+    function splitNumAndRue(fullAddress) {
+    // Suppression des espaces en début/fin
+    fullAddress = fullAddress.trim();
+
+    // Cherche le premier nombre au début
+    const match = fullAddress.match(/^(\d+)\s+(.*)/);
+    if (match) {
+        return {
+            num: match[1],
+            rue: match[2]
+        };
+    } else {
+        return {
+            num: '',    // aucun numéro trouvé
+            rue: fullAddress
+        };
+    }
+}
 });
