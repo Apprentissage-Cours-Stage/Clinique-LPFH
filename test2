@@ -1,0 +1,223 @@
+
+!
+version 12.2
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname swG8
+!
+boot-start-marker
+boot-end-marker
+!
+enable password 7 13061E010803
+!
+no aaa new-model
+switch 2 provision ws-c3750-48p
+system mtu routing 1500
+ip subnet-zero
+ip routing
+!
+!
+!
+!
+crypto pki trustpoint TP-self-signed-236112896
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-236112896
+ revocation-check none
+ rsakeypair TP-self-signed-236112896
+!
+!
+crypto pki certificate chain TP-self-signed-236112896
+ certificate self-signed 01
+  3082023B 308201A4 A0030201 02020101 300D0609 2A864886 F70D0101 04050030 
+  30312E30 2C060355 04031325 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 32333631 31323839 36301E17 0D393330 33303130 30303130 
+  385A170D 32303031 30313030 30303030 5A303031 2E302C06 03550403 1325494F 
+  532D5365 6C662D53 69676E65 642D4365 72746966 69636174 652D3233 36313132 
+  38393630 819F300D 06092A86 4886F70D 01010105 0003818D 00308189 02818100 
+  EC4CC8A1 32D6F34B AA461383 EFF5E987 F3760949 B2DE5878 F90724E9 FAC62CF4 
+  80D8BA50 98061C6E 604F4FB4 46641855 EAA562ED 4B8CFAA0 6F038AFE 3B864C0E 
+  17BAC398 EC2F9D42 91901E87 66CD1B02 2AF451B4 C1950886 4CCE76EB 95160A29 
+  64A153B6 AA979B2D F6C395EF A35CA894 8421895E 9E114878 820243E4 211CE497 
+  02030100 01A36530 63300F06 03551D13 0101FF04 05300301 01FF3010 0603551D 
+  11040930 07820573 7747382E 301F0603 551D2304 18301680 14FFA598 056C8727 
+  8D7F3BAC 84F17B03 549303C2 BB301D06 03551D0E 04160414 FFA59805 6C87278D 
+  7F3BAC84 F17B0354 9303C2BB 300D0609 2A864886 F70D0101 04050003 8181005B 
+  3B7D6C18 5BCF6218 A48E72DE FDE8E2ED 1A906B25 18456313 C9A1BEF1 F22A5C57 
+  A7CB85D8 57EFEADF 50F8269F D0FA1366 4960D9FF EBA13469 05922B2F DD34DB21 
+  17CB9D2F CB8251F9 5BE1A1E1 77D3E23B BC444022 422906F8 9333785B 10C2230D 
+  9619029E 42EB71C2 60A70F5B F064C684 1D7A9B02 B71EAF1C 5E28F60A 18BB39
+  quit
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+!
+!
+interface FastEthernet2/0/1
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,10,21,30,40,50,61,100,220
+ switchport mode trunk
+!
+interface FastEthernet2/0/2
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,10,21,30,40,50,61,100,220
+ switchport mode trunk
+ switchport nonegotiate
+!
+interface FastEthernet2/0/3
+!
+interface FastEthernet2/0/4
+!
+interface FastEthernet2/0/5
+!
+interface FastEthernet2/0/6
+!
+interface FastEthernet2/0/7
+!
+interface FastEthernet2/0/8
+!
+interface FastEthernet2/0/9
+!
+interface FastEthernet2/0/10
+!
+interface FastEthernet2/0/11
+!
+interface FastEthernet2/0/12
+!
+interface FastEthernet2/0/13
+!
+interface FastEthernet2/0/14
+!
+interface FastEthernet2/0/15
+!
+interface FastEthernet2/0/16
+!
+interface FastEthernet2/0/17
+!
+interface FastEthernet2/0/18
+!
+interface FastEthernet2/0/19
+!
+interface FastEthernet2/0/20
+!
+interface FastEthernet2/0/21
+!
+interface FastEthernet2/0/22
+!
+interface FastEthernet2/0/23
+!
+interface FastEthernet2/0/24
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,10,21,30,40,50,61,100,220
+ switchport mode trunk
+!
+interface FastEthernet2/0/25
+!
+interface FastEthernet2/0/26
+!
+interface FastEthernet2/0/27
+!
+interface FastEthernet2/0/28
+!
+interface FastEthernet2/0/29
+!
+interface FastEthernet2/0/30
+!
+interface FastEthernet2/0/31
+!
+interface FastEthernet2/0/32
+!
+interface FastEthernet2/0/33
+!
+interface FastEthernet2/0/34
+!
+interface FastEthernet2/0/35
+!
+interface FastEthernet2/0/36
+!
+interface FastEthernet2/0/37
+!
+interface FastEthernet2/0/38
+!
+interface FastEthernet2/0/39
+!
+interface FastEthernet2/0/40
+!
+interface FastEthernet2/0/41
+!
+interface FastEthernet2/0/42
+!
+interface FastEthernet2/0/43
+!
+interface FastEthernet2/0/44
+!
+interface FastEthernet2/0/45
+!
+interface FastEthernet2/0/46
+!
+interface FastEthernet2/0/47
+!
+interface FastEthernet2/0/48
+!
+interface GigabitEthernet2/0/1
+!
+interface GigabitEthernet2/0/2
+!
+interface GigabitEthernet2/0/3
+!
+interface GigabitEthernet2/0/4
+!
+interface Vlan1
+ ip address 192.168.70.50 255.255.255.0
+!
+interface Vlan10
+ ip address 192.168.10.1 255.255.255.0
+!
+interface Vlan21
+ ip address 192.168.21.1 255.255.255.0
+!
+interface Vlan30
+ ip address 192.168.30.1 255.255.255.0
+!
+interface Vlan40
+ ip address 192.168.40.1 255.255.255.0
+!
+interface Vlan50
+ ip address 192.168.50.1 255.255.255.0
+!
+interface Vlan61
+ ip address 192.168.61.1 255.255.255.0
+!
+interface Vlan100
+ ip address 192.168.100.1 255.255.255.0
+!
+interface Vlan220
+ ip address 192.168.220.1 255.255.255.0
+!
+ip classless
+ip http server
+ip http secure-server
+!
+snmp-server community groupe8 RO
+!
+control-plane
+!
+!
+line con 0
+line vty 0 4
+ password 7 1511021F0725
+ login
+line vty 5 15
+ password 7 1511021F0725
+ login
+!
+end
