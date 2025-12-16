@@ -5,25 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentStep = 0; // index du step courant
     const formSteps = document.querySelectorAll('.form-step');
 
-    // Step 1
-    const typeHosp = document.getElementById('type_hosp');
-    const dateInput = document.getElementById('hospidate');
-    const timeInput = document.getElementById('heure');
-    const medecin = document.getElementById('medecin');
-    const timeError = document.getElementById('time-error');
-
-    // Step 2
-    const nomOrgaSocial = document.getElementById('nom_orga_social');
-    const numSecuSocial = document.getElementById('num_secusocial');
-    const isAssure = document.getElementById('assure');
-    const isADL = document.getElementById('adl');
-    const nomMutuelle = document.getElementById('nom_mutuelle');
-    const numAdherent = document.getElementById('num_adhérent');
-    const chambre = document.getElementById('chambre');
-
-    //Step 3
+    //Step 1
     const civilité = document.getElementById('civilité')
     const nomNaissance = document.getElementById('nomNaissance');
+    const isMarried = document.getElementById('isMarried');
+    const nomEpouse = document.getElementById('nomEpouse');
     const prenom = document.getElementById('prenom');
     const datenaissance = document.getElementById('datenaissance');
     const addresse = document.getElementById('addresse');
@@ -31,6 +17,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const ville = document.getElementById('ville');
     const telephone = document.getElementById('telephone');
     const mail = document.getElementById('mail');
+
+    // Step 2
+    const typeHosp = document.getElementById('type_hosp');
+    const dateInput = document.getElementById('hospidate');
+    const timeInput = document.getElementById('heure');
+    const medecin = document.getElementById('medecin');
+    const timeError = document.getElementById('time-error');
+
+    // Step 3
+    const nomOrgaSocial = document.getElementById('nom_orga_social');
+    const numSecuSocial = document.getElementById('num_secusocial');
+    const isAssure = document.getElementById('assure');
+    const isADL = document.getElementById('adl');
+    const nomMutuelle = document.getElementById('nom_mutuelle');
+    const numAdherent = document.getElementById('num_adhérent');
+    const chambre = document.getElementById('chambre');
 
     //Step 4
     const NomPP = document.getElementById('NomPP');
@@ -133,10 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function toggleDocumentByAge() {
-        const saved = sessionStorage.getItem('step3Data');
-        if (!saved) return;
-        const data = JSON.parse(saved);
-        const dateValue = data.datenaissance;
+        const dateValue = datenaissance.value;
         if (!dateValue) {
             formMineur.style.display = 'none';
             return;
@@ -158,10 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function toggleResponsableByAge() {
-        const saved = sessionStorage.getItem('step3Data');
-        if (!saved) return;
-        const data = JSON.parse(saved);
-        const dateValue = data.datenaissance;
+        const dateValue = datenaissance.value;
         if (!dateValue) {
             formResponsable.style.display = 'none';
             return;
@@ -216,281 +212,140 @@ document.addEventListener('DOMContentLoaded', () => {
     isMultiPersonne.addEventListener('change', toggleForms);
     datenaissance.addEventListener('change', toggleResponsableByAge);
 
-    // ------------------ Sauvegarde / Chargement ------------------
-    function saveStep1Data() {
-        const data = {
-            typeHosp: typeHosp.value,
-            date: dateInput.value,
-            heure: timeInput.value,
-            medecin: medecin.value
+    // ------------------ Navigation entre steps ------------------
+    const nextStep1Btn = document.getElementById('nextStep1');
+    const nextStep2Btn = document.getElementById('nextStep2');
+    const nextStep3Btn = document.getElementById('nextStep3');
+    const nextStep4Btn = document.getElementById('nextStep4');
+    const nextStep5Btn = document.getElementById('nextStep5');
+
+    nextStep1Btn.addEventListener('click', () => {
+        if (!nomNaissance.value || !datenaissance.value || !prenom.value || !addresse.value || !cp.value || !ville.value || !telephone.value || !mail.value || (isMarried.checked && !nomEpouse.value)) {
+            alert('Veuillez remplir correctement tous les champs avant de continuer.');
+            return;
+        }
+        const { num: numAdresse, rue: rueAdresse } = splitNumAndRue(addresse.value);
+        const PatientData = {
+            civilité: civilité.value,
+            nomNaissance: nomNaissance.value,
+            nomEpouse: isMarried.checked ? nomEpouse.value : '',
+            prenom: prenom.value,
+            datenaissance: datenaissance.value,
+            numAddresse: numAdresse,
+            rueAddresse: rueAdresse,
+            cp: cp.value,
+            ville: ville.value,
+            telephone: telephone.value,
+            mail: mail.value
         };
-        sessionStorage.setItem('step1Data', JSON.stringify(data));
-    }
+        sessionStorage.setItem('StepPatient', JSON.stringify(PatientData));
+        formSteps[currentStep].style.display = 'none';
+        currentStep++;
+        formSteps[currentStep].style.display = 'block';
+        updateProgress();
+    });
 
-    function loadStep1Data() {
-        const saved = sessionStorage.getItem('step1Data');
-        if (!saved) return;
-        const data = JSON.parse(saved);
-        typeHosp.value = data.typeHosp || '';
-        dateInput.value = data.date || '';
-        timeInput.value = data.heure || '';
-        medecin.value = data.medecin || '';
-        updateMinTime();
-        checkTimeValidity();
-    }
-
-    function saveStep2Data() {
-        const data = {
+    nextStep2Btn.addEventListener('click', async () => {
+        const StepPatient = JSON.parse(sessionStorage.getItem('StepPatient') || '{}');
+        if (!nomOrgaSocial.value || !numSecuSocial.value || !isAssure.value || !isADL.value || !nomMutuelle.value || !numAdherent.value || !chambre.value) {
+            alert('Veuillez remplir correctement tous les champs avant de continuer.');
+            return;
+        }
+        const stepCouverture = {
             nomOrgaSocial: nomOrgaSocial.value,
             numSecuSocial: numSecuSocial.value,
             isAssure: isAssure.value,
             isADL: isADL.value,
             nomMutuelle: nomMutuelle.value,
             numAdherent: numAdherent.value,
-            chambre: chambre.value
-        };
-        sessionStorage.setItem('step2Data', JSON.stringify(data));
-    }
-
-    function loadStep2Data() {
-        const saved = sessionStorage.getItem('step2Data');
-        if (!saved) return;
-        const data = JSON.parse(saved);
-        nomOrgaSocial.value = data.nomOrgaSocial || '';
-        numSecuSocial.value = data.numSecuSocial || '';
-        isAssure.value = data.isAssure || '';
-        isADL.value = data.isADL || '';
-        nomMutuelle.value = data.nomMutuelle || '';
-        numAdherent.value = data.numAdherent || '';
-        chambre.value = data.chambre || '';
-    }
-
-    function loadStep3Data() {
-        const saved = sessionStorage.getItem('step3Data');
-        if (!saved) return;
-        const data = JSON.parse(saved);
-        civilité.value = data.civilité || '';
-        nomNaissance.value = data.nomNaissance || '';
-        prenom.value = data.prenom || '';
-        datenaissance.value = data.datenaissance || '';
-        addresse.value = data.numaddresse + " " +data.addresse || '';
-        cp.value = data.cp || '';
-        ville.value = data.ville || '';
-        telephone.value = data.telephone || '';
-        mail.value = data.mail || '';
-        if (isMarried.checked) {
-            nomEpouse.value = data.nomEpouse || '';
-        } else {
-            nomEpouse.value = '';
         }
-    }
+        const CouverturePatientData = { ...StepPatient, ...stepCouverture };
+        try {
+            const res = await fetch('../INCLUDES/submitBDD.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ step: 2, data: CouverturePatientData })
+            })
+            const resClone = res.clone();
+            let result;
 
-    function saveStep3Data() {
-        const {num, rue} = splitNumAndRue(addresse.value);
-        const data = {
-            civilité: civilité.value,
-            nomNaissance: nomNaissance.value,
-            nomEpouse: isMarried.checked ? nomEpouse.value : '',
-            prenom: prenom.value,
-            datenaissance: datenaissance.value,
-            numaddresse: num,
-            addresse: rue,
-            cp: cp.value,
-            ville: ville.value,
-            telephone: telephone.value,
-            mail: mail.value
-        };
-        sessionStorage.setItem('step3Data', JSON.stringify(data));
-    }
+            try {
+                result = await res.json();
 
-    function loadStep4Data() {
-        const saved = sessionStorage.getItem('step4Data');
-        if (!saved) return;
-        const data = JSON.parse(saved);
-        // Personne à prévenir
-        NomPP.value = data.NomPP || '';
-        PrenomPP.value = data.PrenomPP || '';
-        TelPP.value = data.TelPP || '';
-        RuePP.value = (data.NumRuePP || '') + (data.AdressePP ? ' ' + data.AdressePP : '');
-        CPPP.value = data.CPPP || '';
-        VillePP.value = data.VillePP || '';
-        // Personne de confiance
-        if (!isMultiPersonne.checked) {
-            NomPC.value = data.NomPC || '';
-            PrenomPC.value = data.PrenomPC || '';
-            TelPC.value = data.TelPC || '';
-            RuePC.value = (data.NumRuePC || '') + (data.AdressePC ? ' ' + data.AdressePC : '');
-            CPPC.value = data.CPPC || '';
-            VillePC.value = data.VillePC || '';
-        } else {
-            NomPC.value = '';
-            PrenomPC.value = '';
-            TelPC.value = '';
-            RuePC.value = '';
-            CPPC.value = '';
-            VillePC.value = '';
-        }
-        // Responsable légal
-        NomResp.value = data.NomResp || '';
-        PrenomResp.value = data.PrenomResp || '';
-        TelResp.value = data.TelResp || '';
-        AdresseResp.value = (data.NumRueResp || '') + (data.AdresseResp ? ' ' + data.AdresseResp : '');
-        CPResp.value = data.CPResp || '';
-        VilleResp.value = data.VilleResp || '';
-        MailResp.value = data.MailResp || '';
-    }
+                // --- VÉRIFICATION DU SUCCÈS DU SERVEUR ---
+                if (result.success) {
+                    sessionStorage.setItem('Chambre', chambre.value);
+                    formSteps[currentStep].style.display = 'none';
+                    currentStep++;
+                    formSteps[currentStep].style.display = 'block';
+                    updateProgress();
+                } else {
+                    alert('Erreur enregistrement (Étape 2) : ' + (result.message || 'Erreur inconnue.'));
+                }
+                // ------------------------------------------
 
-    function saveStep4Data() {
-        const {num: numPP, rue: ruePP} = splitNumAndRue(RuePP.value || '');
-        const {num: numPC, rue: ruePC} = splitNumAndRue(RuePC.value || '');
-        const {num: numResp, rue: rueResp} = splitNumAndRue(RueResp.value || '');
-        const data = {
-            NomPP: NomPP.value,
-            PrenomPP: PrenomPP.value,
-            TelPP: TelPP.value,
-            NumRuePP: numPP,
-            AdressePP: ruePP,
-            CPPP: CPPP.value,
-            VillePP: VillePP.value,
-
-            NomPC: !isMultiPersonne.checked ? NomPC.value : '',
-            PrenomPC: !isMultiPersonne.checked ? PrenomPC.value : '',
-            TelPC: !isMultiPersonne.checked ? TelPC.value : '',
-            NumRuePC: !isMultiPersonne.checked ? numPC : '',
-            AdressePC: !isMultiPersonne.checked ? ruePC : '',
-            CPPC: !isMultiPersonne.checked ? CPPC.value : '',
-            VillePC: !isMultiPersonne.checked ? VillePC.value : '',
-
-            NomResp: NomResp.value,
-            PrenomResp: PrenomResp.value,
-            TelResp: TelResp.value,
-            NumRueResp: numResp,
-            AdresseResp: rueResp,
-            CPResp: CPResp.value,
-            VilleResp: VilleResp.value,
-            MailResp: MailResp.value
-        }
-        sessionStorage.setItem('step4Data', JSON.stringify(data));
-    }
-
-    function saveStep5Data() {
-        const data = {};
-
-        const inputs = {
-            CI,
-            CV,
-            CM,
-            LF,
-            AS,
-            DJ
-        };
-
-        const promises = [];
-
-        for (const key in inputs) {
-            const file = inputs[key].files[0];
-            if (file) {
-                const reader = new FileReader();
-                const p = new Promise(resolve => {
-                    reader.onload = () => {
-                        data[key] = reader.result; // Base64
-                        resolve();
-                    };
-                });
-                reader.readAsDataURL(file);
-                promises.push(p);
-            } else {
-                data[key] = null;
+            } catch (e) {
+                const text = await resClone.text();
+                console.error("Échec de la lecture JSON. Réponse du serveur brute:", text);
+                alert('Erreur serveur: La réponse n\'est pas au format JSON. Voir console.');
+                return;
             }
+        } catch (err) {
+            console.log(err);
+            alert('Erreur réseau ou serveur');
         }
+    });
 
-        Promise.all(promises).then(() => {
-            sessionStorage.setItem('step5Data', JSON.stringify(data));
-        });
-    }
-
-    // ------------------ Navigation entre steps ------------------
-    const nextStep1Btn = document.getElementById('nextStep1');
-    const prevStep2Btn = document.getElementById('prevStep2');
-    const nextStep2Btn = document.getElementById('nextStep2');
-    const prevStep3Btn = document.getElementById('prevStep3');
-    const nextStep3Btn = document.getElementById('nextStep3');
-    const prevStep4Btn = document.getElementById('prevStep4');
-    const nextStep4Btn = document.getElementById('nextStep4');
-    const prevStep5Btn = document.getElementById('prevStep5');
-    const nextStep5Btn = document.getElementById('nextStep5');
-
-    nextStep1Btn.addEventListener('click', () => {
+    nextStep3Btn.addEventListener('click', async () => {
         if (!typeHosp.value || !dateInput.value || !timeInput.value || !medecin.value || !checkTimeValidity()) {
             alert('Veuillez remplir correctement tous les champs avant de continuer.');
             return;
         }
-        saveStep1Data();
-        formSteps[currentStep].style.display = 'none';
-        currentStep++;
-        formSteps[currentStep].style.display = 'block';
-        loadStep2Data();
-        updateProgress();
-    });
-
-    nextStep2Btn.addEventListener('click', () => {
-        if (!nomOrgaSocial.value || !numSecuSocial.value || !isAssure.value || !isADL.value || !nomMutuelle.value || !numAdherent.value || !chambre.value) {
-            alert('Veuillez remplir correctement tous les champs avant de continuer.');
-            return;
+        const chambreUtilisé = sessionStorage.getItem('Chambre');
+        const stepHospitalisation = {
+            TypeHospi: typeHosp.value,
+            DateHospi: dateInput.value,
+            HeureHospi: timeInput.value,
+            Medecin: medecin.value,
+            Chambre: chambreUtilisé
         }
-        saveStep2Data();
-        formSteps[currentStep].style.display = 'none';
-        currentStep++;
-        formSteps[currentStep].style.display = 'block';
-        loadStep3Data();
-        updateProgress();
-    });
+        try {
+            const res = await fetch('../INCLUDES/submitBDD.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ step: 3, data: stepHospitalisation })
+            })
+            const resClone = res.clone();
+            let result;
 
-    prevStep2Btn.addEventListener('click', () => {
-        saveStep2Data();
-        formSteps[currentStep].style.display = 'none';
-        currentStep--;
-        formSteps[currentStep].style.display = 'block';
-        loadStep1Data();
-        updateProgress();
-    });
+            try {
+                result = await res.json();
 
-    prevStep3Btn.addEventListener('click', () => {
-        saveStep3Data();
-        formSteps[currentStep].style.display = 'none';
-        currentStep--;
-        formSteps[currentStep].style.display = 'block';
-        loadStep2Data();
-        updateProgress();
-    });
+                // --- VÉRIFICATION DU SUCCÈS DU SERVEUR ---
+                if (result.success) {
+                    formSteps[currentStep].style.display = 'none';
+                    currentStep++;
+                    formSteps[currentStep].style.display = 'block';
+                    updateProgress();
+                    toggleResponsableByAge();
+                } else {
+                    alert('Erreur enregistrement (Étape 3) : ' + (result.message || 'Erreur inconnue.'));
+                }
+                // ------------------------------------------
 
-    nextStep3Btn.addEventListener('click', () => {
-        if (!nomNaissance.value || !datenaissance.value || !addresse.value || !cp.value || !ville.value || !telephone.value || !mail.value) {
-            if (isMarried.checked && !nomEpouse.value) {
-                alert('Veuillez remplir correctement tous les champs avant de continuer.');
+            } catch (e) {
+                const text = await resClone.text();
+                console.error("Échec de la lecture JSON. Réponse du serveur brute:", text);
+                alert('Erreur serveur: La réponse n\'est pas au format JSON. Voir console.');
                 return;
             }
+        } catch (err) {
+            console.log(err);
+            alert('Erreur réseau ou serveur');
         }
-        saveStep3Data();
-        formSteps[currentStep].style.display = 'none';
-        currentStep++;
-        formSteps[currentStep].style.display = 'block';
-        loadStep4Data();
-        toggleResponsableByAge();
-        toggleDocumentByAge();
-        updateProgress();
     });
 
-    prevStep4Btn.addEventListener('click', () => {
-        saveStep4Data();
-        formSteps[currentStep].style.display = 'none';
-        currentStep--;
-        formSteps[currentStep].style.display = 'block';
-        loadStep3Data();
-        updateProgress();
-    });
-
-    nextStep4Btn.addEventListener('click', () => {
+    nextStep4Btn.addEventListener('click', async () => {
         if (!NomPP.value || !PrenomPP.value || !TelPP.value || !RuePP.value || !VillePP.value || !CPPP.value) {
             if (!isMultiPersonne.checked && (!NomPC.value || !PrenomPC.value || !TelPC.value || !RuePC.value || !VillePC.value || !CPPC.value)) {
                 if (formResponsable.style.display == 'block' && (!NomResp.value || !PrenomResp.value || !TelResp.value || !MailResp.value || !RueResp.value || !VilleResp.value || !CPResp.value)) {
@@ -499,36 +354,143 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-        saveStep4Data();
-        formSteps[currentStep].style.display = 'none';
-        currentStep++;
-        formSteps[currentStep].style.display = 'block';
-        toggleResponsableByAge();
-        toggleDocumentByAge();
-        updateProgress();
+        const { num: numAdressePP, rue: rueAdressePP } = splitNumAndRue(RuePP.value);
+        const PersonnePrev = {
+            Nom: NomPP.value,
+            Prenom: PrenomPP.value,
+            Telephone: TelPP.value,
+            NumAdresse: numAdressePP,
+            RueAdresse: rueAdressePP,
+            CP: CPPP.value,
+            Ville: VillePP.value,
+        };
+
+        let PersonneConf = null;
+        if (!isMultiPersonne.checked) {
+            const { num: numAdressePC, rue: rueAdressePC } = splitNumAndRue(RuePC.value);
+            PersonneConf = {
+                Nom: NomPC.value,
+                Prenom: PrenomPC.value,
+                Telephone: TelPC.value,
+                NumAdresse: numAdressePC,
+                RueAdresse: rueAdressePC,
+                CP: CPPC.value,
+                Ville: VillePC.value
+            };
+        }
+
+        let ResponsableLegal = null;
+        if (formResponsable.style.display === 'block') {
+            const { num: numAdresseResp, rue: rueAdresseResp } = splitNumAndRue(RueResp.value);
+            ResponsableLegal = {
+                Nom: NomResp.value,
+                Prenom: PrenomResp.value,
+                Telephone: TelResp.value,
+                Mail: MailResp.value,
+                NumAdresse: numAdresseResp,
+                RueAdresse: rueAdresseResp,
+                CP: CPResp.value,
+                Ville: VilleResp.value
+            };
+        }
+        const stepPersonnesData = {
+            PersonnePrev: PersonnePrev,
+            PersonneConf: PersonneConf,
+            ResponsableLegal: ResponsableLegal
+        }
+        try {
+            const res = await fetch('../INCLUDES/submitBDD.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ step: 4, data: stepPersonnesData })
+            });
+
+            const resClone = res.clone();
+            let result;
+
+            try {
+                result = await res.json();
+            } catch (e) {
+                const text = await resClone.text();
+                console.error("Échec de la lecture JSON. Réponse du serveur brute:", text);
+                alert('Erreur serveur: La réponse n\'est pas au format JSON. Voir console.');
+                return;
+            }
+
+            // --- 4. GESTION DU SUCCÈS ---
+            if (result.success) {
+                // Avancer seulement si la BDD a réussi l'enregistrement
+                formSteps[currentStep].style.display = 'none';
+                currentStep++;
+                formSteps[currentStep].style.display = 'block';
+                toggleDocumentByAge(); // Maintenir l'appel pour les étapes suivantes
+                updateProgress();
+            } else {
+                alert('Erreur enregistrement (Étape 4) : ' + (result.message || 'Erreur inconnue.'));
+            }
+
+        } catch (err) {
+            console.log(err);
+            alert('Erreur réseau ou serveur');
+        }
     });
 
-    nextStep5Btn.addEventListener('click', () => {
-        if (!CI.value || !CV.value || !CM.value || !LF.value || !AS.value || !DJ.value) {
+    nextStep5Btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const requiredFiles = [
+            CI,
+            CV,
+            CM,
+        ]
+        if (formMineur && formMineur.style.display !== 'none') {
+            requiredFiles.push(LF, AS, DJ)
+        }
+
+        if (requiredFiles.some(input => !input.files || input.files.length === 0)) {
             alert('Veuillez remplir correctement tous les champs avant de continuer.');
             return;
         }
-        saveStep5Data();
-        formSteps[currentStep].style.display = 'none';
-        currentStep++;
-        formSteps[currentStep].style.display = 'block';
-        updateProgress();
-        fillReviewCards();
+        const formData = new FormData();
+        formData.append('step', 5);
+
+        requiredFiles.forEach(input => {
+            if (input.files.length > 0) {
+                formData.append(input.name, input.files[0]);
+            }
+        });
+        try {
+            // Note: Lors de l'envoi de FormData, vous ne devez PAS définir le 'Content-Type'
+            const res = await fetch('../INCLUDES/submitBDD.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const resClone = res.clone();
+            let result;
+
+            try {
+                // Le serveur PHP doit répondre en JSON, même s'il traite des fichiers
+                result = await res.json();
+            } catch (e) {
+                const text = await resClone.text();
+                console.error("Échec de la lecture JSON. Réponse du serveur brute:", text);
+                alert('Erreur serveur: La réponse n\'est pas au format JSON. Voir console.');
+                return;
+            }
+
+            // --- 4. GESTION DU SUCCÈS ---
+            if (result.success) {
+                alert('Documents enregistrés avec succès ! Fin du formulaire.');
+            } else {
+                alert('Erreur lors de l\'enregistrement des documents (Étape 5) : ' + (result.message || 'Erreur inconnue.'));
+            }
+
+        } catch (err) {
+            console.log(err);
+            alert('Erreur réseau ou serveur lors de l\'envoi des fichiers.');
+        }
     });
 
-    prevStep5Btn.addEventListener('click', () => {
-        saveStep5Data();
-        formSteps[currentStep].style.display = 'none';
-        currentStep--;
-        formSteps[currentStep].style.display = 'block';
-        loadStep4Data();
-        updateProgress();
-    });
     // ------------------ Initialisation ------------------
     toggleForms();
     setupDocumentPreview('CarteID', 'previewCI');
@@ -540,7 +502,6 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleResponsableByAge();
     toggleDocumentByAge();
     setMinDate();
-    loadStep1Data();
     updateMinTime();
     formSteps.forEach((step, index) => step.style.display = index === 0 ? 'block' : 'none');
 
@@ -551,8 +512,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ------------------ Barre de progression ------------------
     function updateProgress() {
-        const step3Fields = [civilité, nomNaissance, datenaissance, addresse, cp, ville, telephone, mail];
-        if (isMarried.checked) step3Fields.push(nomEpouse);
+        const step1Fields = [civilité, nomNaissance, datenaissance, addresse, cp, ville, telephone, mail];
+        if (isMarried.checked) step1Fields.push(nomEpouse);
 
         const step4Fields = [NomPP, PrenomPP, TelPP, RuePP, CPPP, VillePP];
         if (!isMultiPersonne.checked) step4Fields.push(NomPC, PrenomPC, TelPC, RuePC, CPPC, VillePC);
@@ -566,9 +527,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const stepFields = [
-            [typeHosp, dateInput, timeInput, medecin], // Step 1 
-            [nomOrgaSocial, numSecuSocial, isAssure, isADL, nomMutuelle, numAdherent, chambre], // Step 2
-            step3Fields,// Step 3 
+            step1Fields,// Step 1
+            [nomOrgaSocial, numSecuSocial, isAssure, isADL, nomMutuelle, numAdherent, chambre], // Step 2 
+            [typeHosp, dateInput, timeInput, medecin], // Step 3 
             step4Fields, // Step 3 
             step5Fields // Step 4 
         ];
@@ -591,9 +552,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const isMarried = document.getElementById('isMarried');
-    const nomEpouse = document.getElementById('nomEpouse');
-
     isMarried.addEventListener('change', () => {
         if (isMarried.checked) {
             nomEpouse.disabled = false;
@@ -605,145 +563,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function fillReviewCards() {
-        let saved = sessionStorage.getItem('step3Data');
-        if (!saved) return;
-        const data3 = JSON.parse(saved);
-        // Information du patient
-        document.getElementById('cardNom').textContent = data3.nomNaissance;
-        document.getElementById('cardPrenom').textContent = data3.prenom;
-        document.getElementById('cardDOB').textContent = data3.datenaissance;
-        document.getElementById('cardEpouse').textContent = data3.nomEpouse || 'Pas Marié';
-        document.getElementById('cardAdresse').textContent = (data3.numaddresse || '') + (data3.addresse ? ' ' + data3.addresse : '');
-        document.getElementById('cardCP').textContent = data3.cp;
-        document.getElementById('cardVille').textContent = data3.ville;
-        document.getElementById('cardTel').textContent = data3.telephone;
-        document.getElementById('cardMail').textContent = data3.mail;
-
-        saved = sessionStorage.getItem('step2Data');
-        if (!saved) return;
-        const data2 = JSON.parse(saved);
-        // Couverture Social du Patient
-        document.getElementById('cardNomOrga').textContent = data2.nomOrgaSocial;
-        document.getElementById('cardNumSecu').textContent = data2.numSecuSocial;
-        document.getElementById('cardAssure').textContent = data2.isAssure == 1 ? "Oui" : "Non";
-        document.getElementById('cardADL').textContent = data2.isADL == 1 ? "Oui" : "Non";
-        document.getElementById('cardNomMut').textContent = data2.nomMutuelle;
-        document.getElementById('cardNumMut').textContent = data2.numAdherent;
-        document.getElementById('cardChambre').textContent = data2.chambre;
-
-        saved = sessionStorage.getItem('step5Data');
-        if (!saved) return;
-        const data5 = JSON.parse(saved);
-        // Documents
-        document.getElementById('cardCI').textContent = data5.CI ? "Présent" : "";
-        document.getElementById('cardCV').textContent = data5.CV ? "Présent" : "";
-        document.getElementById('cardCM').textContent = data5.CM ? "Présent" : "";
-        document.getElementById('cardLF').textContent = data5.LF ? "Présent" : "Pas Besoin";
-        document.getElementById('cardAS').textContent = data5.AS ? "Présent" : "Pas Besoin";
-        document.getElementById('cardDJ').textContent = data5.DJ ? "Présent" : "Pas Besoin";
-
-        saved = sessionStorage.getItem('step4Data');
-        if (!saved) return;
-        const data4 = JSON.parse(saved);
-        // Personne à Prev/Confiance/Responsable
-        document.getElementById('cardNomPrev').textContent = data4.NomPP;
-        document.getElementById('cardPrenomPrev').textContent = data4.PrenomPP;
-        document.getElementById('cardTelPrev').textContent = data4.TelPP;
-        document.getElementById('cardRuePrev').textContent =  (data4.NumRuePP || '') + (data4.AdressePP ? ' ' + data4.AdressePP : '');
-        document.getElementById('cardCPPrev').textContent = data4.CPPP;
-        document.getElementById('cardVillePrev').textContent = data4.VillePP;
-        if(data4.NomPC) {
-            document.getElementById('cardNomConf').textContent = data4.NomPC;
-            document.getElementById('cardPrenomConf').textContent = data4.PrenomPC;
-            document.getElementById('cardTelConf').textContent = data4.TelPC;
-            document.getElementById('cardRueConf').textContent = (data4.NumRuePC || '') + (data4.AdressePC ? ' ' + data4.AdressePC : '');
-            document.getElementById('cardCPConf').textContent = data4.CPPC;
-            document.getElementById('cardVilleConf').textContent = data4.VillePC;
-        } else {
-            document.getElementById('cardConf').style.display = 'none';
-        }
-        if (data4.NomResp) {
-            document.getElementById('cardNomResp').textContent = data4.NomResp;
-            document.getElementById('cardPrenomResp').textContent = data4.PrenomResp;
-            document.getElementById('cardTelResp').textContent = data4.TelResp;
-            document.getElementById('cardRueResp').textContent = (data4.NumRueResp || '') + (data4.AdresseResp ? ' ' + data4.AdresseResp : '');
-            document.getElementById('cardCPResp').textContent = data4.CPResp;
-            document.getElementById('cardVilleResp').textContent = data4.VilleResp;
-        } else {
-            document.getElementById('cardResp').style.display = 'none';
-        }
-
-        saved = sessionStorage.getItem('step1Data');
-        if (!saved) return;
-        const data1 = JSON.parse(saved);
-        //Hospitalisation
-        document.getElementById('cardDateHospi').textContent = data1.date;
-        document.getElementById('cardHeureHospi').textContent = data1.heure;
-    }
-
-    function editSection(step) {
-        console.log("editSection called with:", step);
-        const n = parseInt(step.replace('step',''), 10);
-        if (isNaN(n)) return;
-        const targetId = 'step' + n; // doit correspondre à l'id réel
-        const targetEl = document.getElementById(targetId);
-        if (!targetEl) return;
-        formSteps.forEach(s => s.style.display = 'none');
-        targetEl.style.display = 'block';
-        currentStep = Array.from(formSteps).indexOf(targetEl);
-        updateProgress();
-    }
-
-    window.editSection = editSection;
-
-    document.getElementById('submitAll').addEventListener('click', () => {
-    // On récupère toutes les données stockées en sessionStorage
-        const step1 = JSON.parse(sessionStorage.getItem('step1Data') || '{}');
-        const step2 = JSON.parse(sessionStorage.getItem('step2Data') || '{}');
-        const step3 = JSON.parse(sessionStorage.getItem('step3Data') || '{}');
-        const step4 = JSON.parse(sessionStorage.getItem('step4Data') || '{}');
-        const step5 = JSON.parse(sessionStorage.getItem('step5Data') || '{}');
-        const step6 = JSON.parse(sessionStorage.getItem('step6Data') || '{}');
-        // On fusionne toutes les données
-        const allData = { ...step1, ...step2, ...step3, ...step4, ...step5, ...step6 };
-        // Envoi via AJAX/fetch
-        fetch('../INCLUDES/submitBDD.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(allData)
-        })
-        .then(res => res.json())
-        .then(result => {
-            if(result.success){
-                alert('Toutes les données ont été enregistrées.');
-                sessionStorage.clear();
-            } else {
-                alert('Erreur: ' + result.message);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Erreur réseau ou serveur');
-        });
-    });
-
     function splitNumAndRue(fullAddress) {
-    // Suppression des espaces en début/fin
-    fullAddress = fullAddress.trim();
-
-    // Cherche le premier nombre au début
-    const match = fullAddress.match(/^(\d+)\s+(.*)/);
-    if (match) {
-        return {
-            num: match[1],
-            rue: match[2]
-        };
-    } else {
-        return {
-            num: '',    // aucun numéro trouvé
-            rue: fullAddress
-        };
+        fullAddress = fullAddress.trim();
+        const match = fullAddress.match(/^(\d+)\s+(.*)/);
+        if (match) {
+            return { num: match[1], rue: match[2] };
+        } else {
+            return { num: '', rue: fullAddress };
+        }
     }
-}
 });

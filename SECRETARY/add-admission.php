@@ -56,117 +56,18 @@ try {
         <div class="main-content">
             <div class="progress-container">
                 <div class="progress-line" style="width: 0%;"></div> <!-- adapte la largeur pour refléter la progression -->
-                <div class="progress-step active" data-label="Hospitalisation">1</div>
+                <div class="progress-step active" data-label="Patient">1</div>
                 <div class="progress-step" data-label="Couverture Social">2</div>
-                <div class="progress-step" data-label="Patient">3</div>
+                <div class="progress-step" data-label="Hospitalisation">3</div>
                 <div class="progress-step" data-label="Personnes à Pervenir/de confiance">4</div>
                 <div class="progress-step" data-label="Documents">5</div>
-                <div class="progress-step" data-label="Validation et Vérification">6</div>
             </div>
             <br>
             <!-- Formulaire -->
             <div class="form-container">
-                <!-- Step 1 -->
                 <div class="form-step" id="step1">
-                    <h3>Planification de l’hospitalisation</h3>
-                    <form id="formStep1">
-                        <div class="form-group">
-                            <label for="type_hosp">Type d’hospitalisation :</label>
-                            <select id="type_hosp" name="type_hosp" required>
-                                <option value="" selected disabled hidden>-- Sélectionner un type --</option>
-                                <?php if ($result_hospitype && $result_hospitype->num_rows > 0): ?>
-                                    <?php while ($row = $result_hospitype->fetch_assoc()): ?>
-                                        <option value="<?= htmlspecialchars($row['ID_TypeHospitalisation']) ?>">
-                                            <?= htmlspecialchars($row['Libellé_TypeHospitalisation']) ?>
-                                        </option>
-                                    <?php endwhile; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="hospidate">Date de l'hospitalisation :</label>
-                            <input type="date" id="hospidate" name="hospidate" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="heure">Heure :</label>
-                            <input type="time" id="heure" name="heure" required>
-                            <small id="time-error" style="color: red; display: none;">L'heure ne peut pas être dans le passé !</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="medecin">Médecin :</label>
-                            <select id="medecin" name="medecin" required>
-                                <option value="" selected disabled hidden>-- Sélectionner un médecin --</option>
-                                <?php if ($result_medecin && $result_medecin->num_rows > 0): ?>
-                                    <?php while ($row = $result_medecin->fetch_assoc()): ?>
-                                        <option value="<?= htmlspecialchars($row["ID_Personnel"]) ?>">
-                                            Dr <?= htmlspecialchars($row['Nom_Personnel']) ?> (Service <?= htmlspecialchars($row['Libellé_Service']) ?>)
-                                        </option>
-                                    <?php endwhile; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-
-                        <button type="button" id="nextStep1">Étape suivante →</button>
-                    </form>
-                </div>
-                <!-- Step 2 -->
-                <div class="form-step" id="step2" style="display:none;">
-                    <h3>Couverture social du patient</h3>
-                    <form id="formStep2">
-                        <div class="form-group">
-                            <label for="nom_orga_social">Organisme de sécurité social / Nom de la caisse d'assurance maladie :</label>
-                            <input type="text" id="nom_orga_social" name="nom_orga_social" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="num_secusocial">Numéro de sécurité social :</label>
-                            <input type="text" id="num_secusocial" name="num_secusocial" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="assure">Le patient est-il assuré ?</label>
-                            <select id="assure" name="assure" required>
-                                <option value="" selected disabled hidden> -- Sélectionner une réponse --</option>
-                                <option value="1">Oui</option>
-                                <option value="0">Non</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="adl">Le patient est-il en ADL ?</label>
-                            <select id="adl" name="adl" required>
-                                <option value="" selected disabled hidden> -- Sélectionner une réponse --</option>
-                                <option value="1">Oui</option>
-                                <option value="0">Non</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="nom_mutuelle">Nom de la mutuelle ou de l'assurance :</label>
-                            <input type="text" id="nom_mutuelle" name="nom_mutuelle" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="num_adhérent">Numéro d'adhérent :</label>
-                            <input type="text" id="num_adhérent" name="num_adhérent" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="chambre">Chambre sélectionné :</label>
-                            <select id="chambre" name="chambre" required>
-                                <option value="" selected disabled hidden>-- Sélectionner une chambre --</option>
-                                <?php if ($result_chambre && $result_chambre->num_rows > 0): ?>
-                                    <?php while ($row = $result_chambre->fetch_assoc()): ?>
-                                        <option value="<?= htmlspecialchars($row['NumeroChambre']) ?>">
-                                            Chambre <?= htmlspecialchars($row['NumeroChambre']) ?> (Etage n°<?= htmlspecialchars($row['ID_Etage']) ?>) - <?= htmlspecialchars($row['Type_Chambre']) ?>
-                                        </option>
-                                    <?php endwhile; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-                        <div class="button-row">
-                            <button type="button" id="prevStep2">← Étape précédente</button>
-                            <button type="button" id="nextStep2">Étape précédente →</button>
-                        </div>
-                    </form>
-                </div>
-                <div class="form-step" id="step3" style="display: none;">
                     <h3>Informations personnelles du patient</h3>
-                    <form id="formStep3">
+                    <form id="formStep1">
                         <div class="form-group">
                             <label for="civilité">Civilité :</label>
                             <select id="civilité" name="civilité" required>
@@ -220,9 +121,103 @@ try {
                             <input type="text" id="mail" name="mail" required>
                         </div>
                         <div class="button-row">
-                            <button type="button" id="prevStep3">← Étape précédente</button>
-                            <button type="button" id="nextStep3">Étape précédente →</button>
+                            <button type="button" id="nextStep1">Étape suivante →</button>
                         </div>
+                    </form>
+                </div>
+                <div class="form-step" id="step2" style="display:none;">
+                    <h3>Couverture social du patient</h3>
+                    <form id="formStep2">
+                        <div class="form-group">
+                            <label for="nom_orga_social">Organisme de sécurité social / Nom de la caisse d'assurance maladie :</label>
+                            <input type="text" id="nom_orga_social" name="nom_orga_social" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="num_secusocial">Numéro de sécurité social :</label>
+                            <input type="text" id="num_secusocial" name="num_secusocial" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="assure">Le patient est-il assuré ?</label>
+                            <select id="assure" name="assure" required>
+                                <option value="" selected disabled hidden> -- Sélectionner une réponse --</option>
+                                <option value="1">Oui</option>
+                                <option value="0">Non</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="adl">Le patient est-il en ADL ?</label>
+                            <select id="adl" name="adl" required>
+                                <option value="" selected disabled hidden> -- Sélectionner une réponse --</option>
+                                <option value="1">Oui</option>
+                                <option value="0">Non</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="nom_mutuelle">Nom de la mutuelle ou de l'assurance :</label>
+                            <input type="text" id="nom_mutuelle" name="nom_mutuelle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="num_adhérent">Numéro d'adhérent :</label>
+                            <input type="text" id="num_adhérent" name="num_adhérent" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="chambre">Chambre sélectionné :</label>
+                            <select id="chambre" name="chambre" required>
+                                <option value="" selected disabled hidden>-- Sélectionner une chambre --</option>
+                                <?php if ($result_chambre && $result_chambre->num_rows > 0): ?>
+                                    <?php while ($row = $result_chambre->fetch_assoc()): ?>
+                                        <option value="<?= htmlspecialchars($row['NumeroChambre']) ?>">
+                                            Chambre <?= htmlspecialchars($row['NumeroChambre']) ?> (Etage n°<?= htmlspecialchars($row['ID_Etage']) ?>) - <?= htmlspecialchars($row['Type_Chambre']) ?>
+                                        </option>
+                                    <?php endwhile; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="button-row">
+                            <button type="button" id="nextStep2">Étape suivante →</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="form-step" id="step3" style="display: none;">
+                    <h3>Planification de l’hospitalisation</h3>
+                    <form id="formStep3">
+                        <div class="form-group">
+                            <label for="type_hosp">Type d’hospitalisation :</label>
+                            <select id="type_hosp" name="type_hosp" required>
+                                <option value="" selected disabled hidden>-- Sélectionner un type --</option>
+                                <?php if ($result_hospitype && $result_hospitype->num_rows > 0): ?>
+                                    <?php while ($row = $result_hospitype->fetch_assoc()): ?>
+                                        <option value="<?= htmlspecialchars($row['ID_TypeHospitalisation']) ?>">
+                                            <?= htmlspecialchars($row['Libellé_TypeHospitalisation']) ?>
+                                        </option>
+                                    <?php endwhile; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="hospidate">Date de l'hospitalisation :</label>
+                            <input type="date" id="hospidate" name="hospidate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="heure">Heure :</label>
+                            <input type="time" id="heure" name="heure" required>
+                            <small id="time-error" style="color: red; display: none;">L'heure ne peut pas être dans le passé !</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="medecin">Médecin :</label>
+                            <select id="medecin" name="medecin" required>
+                                <option value="" selected disabled hidden>-- Sélectionner un médecin --</option>
+                                <?php if ($result_medecin && $result_medecin->num_rows > 0): ?>
+                                    <?php while ($row = $result_medecin->fetch_assoc()): ?>
+                                        <option value="<?= htmlspecialchars($row["ID_Personnel"]) ?>">
+                                            Dr <?= htmlspecialchars($row['Nom_Personnel']) ?> (Service <?= htmlspecialchars($row['Libellé_Service']) ?>)
+                                        </option>
+                                    <?php endwhile; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+
+                        <button type="button" id="nextStep3">Étape suivante →</button>
                     </form>
                 </div>
                 <div class="form-step" id="step4" style="display: none;">
@@ -323,8 +318,7 @@ try {
                             </div>
                         </div>
                         <div class="button-row">
-                            <button type="button" id="prevStep4">← Étape précédente</button>
-                            <button type="button" id="nextStep4">Étape précédente →</button>
+                            <button type="button" id="nextStep4">Étape suivante →</button>
                         </div>
                     </form>
                 </div>
@@ -383,94 +377,10 @@ try {
                             </div>
                         </div>
                         <div class="button-row">
-                            <button type="button" id="prevStep5">← Étape précédente</button>
-                            <button type="button" id="nextStep5">Étape précédente →</button>
+                            <button type="button" id="nextStep5">Étape suivante →</button>
                         </div>
                     </form>
                 </div>
-                <div class="form-step" id="step6" style="display: none;">
-                    <form id="formStep6">
-                        <h3>Informations du Patient</h2>
-                        <div class="reviewCards">
-                            <div class="card">
-                                <h3>Informations personnelles</h3>
-                                <p>Nom : <span id="cardNom"></span></p>
-                                <p>Nom d'épouse : <span id="cardEpouse"></span></p>
-                                <p>Prénom : <span id="cardPrenom"></span></p>
-                                <p>Date de naissance : <span id="cardDOB"></span></p>
-                                <p>Adresse : <span id="cardAdresse"></span></p>
-                                <p>Code Postal : <span id="cardCP"></span></p>
-                                <p>Ville : <span id="cardVille"></span></p>
-                                <p>Téléphone : <span id="cardTel"></span></p>
-                                <p>Email : <span id="cardMail"></span></p>
-                                <button type="button" onclick="editSection('step3')">Modifier</button>
-                            </div>
-                            <div class="card">
-                                <h3>Couverture social</h3>
-                                <p>Organisation de sécurité social : <span id="cardNomOrga"></span></p>
-                                <p>Numero de sécurité social : <span id="cardNumSecu"></span></p>
-                                <p>Assuré ? : <span id="cardAssure"></span></p>
-                                <p>ADL ? : <span id="cardADL"></span></p>
-                                <p>Nom de Mutuelle : <span id="cardNomMut"></span></p>
-                                <p>Numéro d'adhérent : <span id="cardNumMut"></span></p>
-                                <p>Chambre utilisé : <span id="cardChambre"></span></p>
-                                <button type="button" onclick="editSection('step2')">Modifier</button>
-                            </div>
-                            <div class="card">
-                                <h3>Documents</h3>
-                                <p>Carte d'identité : <span id="cardCI"></span></p>
-                                <p>Carte vitale : <span id="cardCV"></span></p>
-                                <p>Carte de mutuelle : <span id="cardCM"></span></p>
-                                <p>Livret de Famille : <span id="cardLF"></span></p>
-                                <p>Autorisation de soin : <span id="cardAS"></span></p>
-                                <p>Decision du juge : <span id="cardDJ"></span></p>
-                                <button type="button" onclick="editSection('step5')">Modifier</button>
-                            </div>
-                            <div class="card">
-                                <h3>Personne à Prevenir et de confiance</h3>
-                                <div id="cardPrev">
-                                    <p>Nom de la personne à prevenir : <span id="cardNomPrev"></span></p>
-                                    <p>Prénom de la personne à prevenir : <span id="cardPrenomPrev"></span></p>
-                                    <p>Téléphone de la personne à prevenir : <span id="cardTelPrev"></span></p>
-                                    <p>Rue d'habitation de la personne à prevenir : <span id="cardRuePrev"></span></p>
-                                    <p>Code Postal de la personne à prevenir : <span id="cardCPPrev"></span></p>
-                                    <p>Ville de la personne à prevenir : <span id="cardVillePrev"></span></p>
-                                </div>
-                                <div id="cardConf">
-                                    <p>Nom de la personne de confiance : <span id="cardNomConf"></span></p>
-                                    <p>Prénom de la personne de confiance : <span id="cardPrenomConf"></span></p>
-                                    <p>Téléphone de la personne de confiance : <span id="cardTelConf"></span></p>
-                                    <p>Rue d'habitation de la personne de confiance : <span id="cardRueConf"></span></p>
-                                    <p>Code Postal de la personne de confiance : <span id="cardCPConf"></span></p>
-                                    <p>Ville de la personne de confiance : <span id="cardVilleConf"></span></p>
-                                </div>
-                                <button type="button" onclick="editSection('step4')">Modifier</button>
-                            </div>
-                            <div class="card" id="cardResp">
-                                <h3>Responsable</h3>
-                                <p>Nom du responsable : <span id="cardNomResp"></span></p>
-                                <p>Prénom du responsable : <span id="cardPrenomResp"></span></p>
-                                <p>Téléphone du responsable : <span id="cardTelResp"></span></p>
-                                <p>Rue d'habitation du responsable : <span id="cardRueResp"></span></p>
-                                <p>Code Postal du responsable : <span id="cardCPResp"></span></p>
-                                <p>Ville du responsable : <span id="cardVilleResp"></span></p>
-                                <button type="button" onclick="editSection('step4')">Modifier</button>
-                            </div>
-                        </div>
-                            <h3>Information de l'hospitalisation</h2>
-                        <div class="reviewCards">
-                            <div class="card">
-                                <h3>Hospitalisation</h3>
-                                <p>Date de l'hospitalisation : <span id="cardDateHospi"></span></p>
-                                <p>Heure de l'hospitalisation : <span id="cardHeureHospi"></span></p>
-                                <button type="button" onclick="editSection('step1')">Modifier</button>
-                            </div>
-                        </div>
-                        <button type="button" id="submitAll">Envoyer</button>
-                    </form>
-                </div>
-            </div>
-        </div>
         <div class="background-shape"></div>
         <div class="background-shape2"></div>
     </div>
