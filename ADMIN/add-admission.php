@@ -1,0 +1,389 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+//Utilisation de la BDD
+require_once "../INCLUDES/db.php";
+try {
+    $sql_hospitype = "SELECT ID_TypeHospitalisation, Libellé_TypeHospitalisation
+                      FROM TypeHospitalisation
+                      ORDER BY Libellé_TypeHospitalisation ASC;";
+    $result_hospitype = $conn->query($sql_hospitype);
+
+    $sql_medecin = "SELECT P.ID_Personnel, P.Nom_Personnel, S.Libellé_Service
+                    FROM Personnel P
+                    INNER JOIN Service S ON P.ID_Service = S.ID_Service
+                    INNER JOIN Role R ON P.Role_Personnel = R.ID_Role
+                    WHERE R.Libellé_Role = 'Medecin';";
+    $result_medecin = $conn->query($sql_medecin);
+
+    $sql_chambre = "SELECT TC.ID_TypeChambre, TC.Type_Chambre
+                    FROM TypeChambre TC";
+    $result_chambre = $conn->query($sql_chambre);
+
+    $sql_civilité = "SELECT ID_Civilité, Libellé_Civilité
+                     FROM Civilité";
+    $result_civilité = $conn->query($sql_civilité);
+} catch (PDOException $e) {
+    die("Erreur de connexion : " . $e->getMessage());
+}
+?>
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajout de Pré-admission - Administrateur</title>
+    <link rel="stylesheet" href="../CSS/add-admission.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <img src="../INCLUDES/IMAGES/LPFSLogo.png" alt="Logo Clinique" class="logo">
+            <h2>Panel Administrateur</h2>
+            <ul class="menu">
+                <li><a href="dashboard-admin.php" style="color:#fff; text-decoration:none;">Accueil</a></li>
+                <li><a href="add-admission.php" style="color:#fff; text-decoration:none;">Enregistrer une Pré-admission</a></li>
+                <li><a href="list-admission.php" style="color:#fff; text-decoration:none;">Liste des Pré-admissions</a></li>
+                <li><a href="../logout.php" style="color:#fff; text-decoration:none;">Déconnexion</a></li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="progress-container">
+                <div class="progress-line" style="width: 0%;"></div> <!-- adapte la largeur pour refléter la progression -->
+                <div class="progress-step active" data-label="Patient">1</div>
+                <div class="progress-step" data-label="Couverture Social">2</div>
+                <div class="progress-step" data-label="Hospitalisation">3</div>
+                <div class="progress-step" data-label="Personnes à Pervenir/de confiance">4</div>
+                <div class="progress-step" data-label="Documents">5</div>
+            </div>
+            <br>
+            <!-- Formulaire -->
+            <div class="form-container">
+                <div class="form-step" id="step1">
+                    <h3>Informations personnelles du patient</h3>
+                    <form id="formStep1">
+                        <div class="form-group">
+                            <label for="civilité">Civilité :</label>
+                            <select id="civilité" name="civilité" required>
+                                <option value="" selected disabled hidden>-- Choisir la civilité --</option>
+                                <?php if ($result_civilité && $result_civilité->num_rows > 0): ?>
+                                    <?php while ($row = $result_civilité->fetch_assoc()): ?>
+                                        <option value="<?= htmlspecialchars($row['ID_Civilité']) ?>">
+                                            <?= htmlspecialchars($row['Libellé_Civilité']) ?>
+                                        </option>
+                                    <?php endwhile; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="nomNaissance">Nom de naissance :</label>
+                            <input type="text" id="nomNaissance" name="nomNaissance" maxlength="150" required>
+                        </div>
+                        <div class="form-group married-row">
+                            <label>
+                                <input type="checkbox" id="isMarried"> Marié(e)
+                            </label>
+                            <label for="nomEpouse">Nom d'épouse :</label>
+                            <input type="text" id="nomEpouse" name="nomEpouse" maxlength="150" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="prenom">Prénom :</label>
+                            <input type="text" id="prenom" name="prenom" maxlength="150" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="datenaissance">Date de naissance :</label>
+                            <input type="date" id="datenaissance" name="datenaissance" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="addresse">Adresse :</label>
+                            <input type="text" id="addresse" name="addresse" maxlength="150" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cp">Code Postal :</label>
+                            <input type="text" id="cp" name="cp" maxlength="5" pattern="[0-9]{5}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ville">Ville :</label>
+                            <input type="text" id="ville" name="ville" maxlength="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="telephone">Téléphone :</label>
+                            <input type="text" id="telephone" name="telephone" maxlength="10" pattern="[0-9]{10}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mail">Email :</label>
+                            <input type="text" id="mail" name="mail" maxlength="150" required>
+                        </div>
+                        <div class="button-row">
+                            <button type="button" id="nextStep1">Étape suivante →</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="form-step" id="step2" style="display:none;">
+                    <h3>Couverture social du patient</h3>
+                    <form id="formStep2">
+                        <div class="form-group">
+                            <label for="nom_orga_social">Organisme de sécurité social / Nom de la caisse d'assurance maladie :</label>
+                            <input type="text" id="nom_orga_social" name="nom_orga_social" maxlength="150" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="num_secusocial">Numéro de sécurité social :</label>
+                            <input type="text" id="num_secusocial" name="num_secusocial" maxlength="15" pattern="[0-9]{15}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="assure">Le patient est-il assuré ?</label>
+                            <select id="assure" name="assure" required>
+                                <option value="" selected disabled hidden> -- Sélectionner une réponse --</option>
+                                <option value="1">Oui</option>
+                                <option value="0">Non</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="adl">Le patient est-il en ADL ?</label>
+                            <select id="adl" name="adl" required>
+                                <option value="" selected disabled hidden> -- Sélectionner une réponse --</option>
+                                <option value="1">Oui</option>
+                                <option value="0">Non</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="nom_mutuelle">Nom de la mutuelle ou de l'assurance :</label>
+                            <input type="text" id="nom_mutuelle" name="nom_mutuelle" maxlength="150" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="num_adhérent">Numéro d'adhérent :</label>
+                            <input type="text" id="num_adhérent" name="num_adhérent" maxlength="50" pattern="[0-9]{50}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="chambre">Chambre sélectionné :</label>
+                            <select id="chambre" name="chambre" required>
+                                <option value="" selected disabled hidden>-- Sélectionner une chambre --</option>
+                                <?php if ($result_chambre && $result_chambre->num_rows > 0): ?>
+                                    <?php while ($row = $result_chambre->fetch_assoc()): ?>
+                                        <option value="<?= htmlspecialchars($row['ID_TypeChambre']) ?>">
+                                            <?=htmlspecialchars($row['Type_Chambre'])?>
+                                        </option>
+                                    <?php endwhile; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="button-row">
+                            <button type="button" id="nextStep2">Étape suivante →</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="form-step" id="step3" style="display: none;">
+                    <h3>Planification de l’hospitalisation</h3>
+                    <form id="formStep3">
+                        <div class="form-group">
+                            <label for="type_hosp">Type d’hospitalisation :</label>
+                            <select id="type_hosp" name="type_hosp" required>
+                                <option value="" selected disabled hidden>-- Sélectionner un type --</option>
+                                <?php if ($result_hospitype && $result_hospitype->num_rows > 0): ?>
+                                    <?php while ($row = $result_hospitype->fetch_assoc()): ?>
+                                        <option value="<?= htmlspecialchars($row['ID_TypeHospitalisation']) ?>">
+                                            <?= htmlspecialchars($row['Libellé_TypeHospitalisation']) ?>
+                                        </option>
+                                    <?php endwhile; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="hospidate">Date de l'hospitalisation :</label>
+                            <input type="date" id="hospidate" name="hospidate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="heure">Heure :</label>
+                            <input type="time" id="heure" name="heure" required>
+                            <small id="time-error" style="color: red; display: none;">L'heure ne peut pas être dans le passé !</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="medecin">Médecin :</label>
+                            <select id="medecin" name="medecin" required>
+                                <option value="" selected disabled hidden>-- Sélectionner un médecin --</option>
+                                <?php if ($result_medecin && $result_medecin->num_rows > 0): ?>
+                                    <?php while ($row = $result_medecin->fetch_assoc()): ?>
+                                        <option value="<?= htmlspecialchars($row["ID_Personnel"]) ?>">
+                                            Dr <?= htmlspecialchars($row['Nom_Personnel']) ?> (Service <?= htmlspecialchars($row['Libellé_Service']) ?>)
+                                        </option>
+                                    <?php endwhile; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+
+                        <button type="button" id="nextStep3">Étape suivante →</button>
+                    </form>
+                </div>
+                <div class="form-step" id="step4" style="display: none;">
+                    <h3>Personnes à prévenir et personne de confiance</h3>
+                    <form id="formStep4">
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="isMultiPersonne">La personne à prévenir est-elle aussi la personne de confiance
+                            </label>
+                        </div>
+                        <div id="personnesWrapper" class="personnes-wrapper">
+                            <div class="personne-form" id="formPP">
+                                <h4 id="titlePPPC">Personne à prévenir</h4>
+                                <div class="form-group">
+                                    <label for="NomPP">Nom du contact :</label>
+                                    <input type="text" id="NomPP" name="NomPP" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="PrenomPP">Prénom du contact :</label>
+                                    <input type="text" id="PrenomPP" name="PrenomPP" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="TelPP">Téléphone du contact :</label>
+                                    <input type="text" id="TelPP" name="TelPP" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="RuePP">Rue du contact :</label>
+                                    <input type="text" id="RuePP" name="RuePP" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="CPPP">Code postal :</label>
+                                    <input type="text" id="CPPP" name="CPPP" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="VillePP">Ville :</label>
+                                    <input type="text" id="VillePP" name="VillePP" required>
+                                </div>
+                            </div>
+                            <div class="personne-form" id="formPC">
+                                <h4>Personne de confiance</h4>
+                                <div class="form-group">
+                                    <label for="NomPC">Nom du contact de confiance :</label>
+                                    <input type="text" id="NomPC" name="NomPC">
+                                </div>
+                                <div class="form-group">
+                                    <label for="PrenomPC">Prénom du contact de confiance :</label>
+                                    <input type="text" id="PrenomPC" name="PrenomPC">
+                                </div>
+                                <div class="form-group">
+                                    <label for="TelPC">Téléphone du contact de confiance :</label>
+                                    <input type="text" id="TelPC" name="TelPC">
+                                </div>
+                                <div class="form-group">
+                                    <label for="RuePC">Rue du contact de confiance :</label>
+                                    <input type="text" id="RuePC" name="RuePC">
+                                </div>
+                                <div class="form-group">
+                                    <label for="CPPC">Code postal :</label>
+                                    <input type="text" id="CPPC" name="CPPC">
+                                </div>
+                                <div class="form-group">
+                                    <label for="VillePC">Ville :</label>
+                                    <input type="text" id="VillePC" name="VillePC">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="formResponsable">
+                            <h3>Responsable légale</h3>
+                            <div class="form-group">
+                                <div class="form-group">
+                                    <label for="NomResp">Nom du Responsable :</label>
+                                    <input type="text" id="NomResp" name="NomResp">
+                                </div>
+                                <div class="form-group">
+                                    <label for="PrenomResp">Prénom du Responsable :</label>
+                                    <input type="text" id="PrenomResp" name="PrenomResp">
+                                </div>
+                                <div class="form-group">
+                                    <label for="TelResp">Télephone du Responsable :</label>
+                                    <input type="text" id="TelResp" name="TelResp">
+                                </div>
+                                <div class="form-group">
+                                    <label for="MailResp">Adresse mail du Responsable :</label>
+                                    <input type="text" id="MailResp" name="MailResp">
+                                </div>
+                                <div class="form-group">
+                                    <label for="RueResp">Rue d'habitation du Responsable :</label>
+                                    <input type="text" id="RueResp" name="RueResp">
+                                </div>
+                                <div class="form-group">
+                                    <label for="VilleResp">Ville du Responsable :</label>
+                                    <input type="text" id="VilleResp" name="VilleResp">
+                                </div>
+                                <div class="form-group">
+                                    <label for="CPResp">Code Postal du Responsable :</label>
+                                    <input type="text" id="CPResp" name="CPResp">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="button-row">
+                            <button type="button" id="nextStep4">Étape suivante →</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="form-step" id="step5" style="display: none;">
+                    <h3>Documents à fournir obligatoirement</h3>
+                    <form id="formStep5">
+                        <div class="form-group doc-group">
+                            <label for="CarteID">Pièce d'identité :</label>
+                            <div class="doc-line">
+                                <input type="file" id="CarteID" name="CarteID" required>
+                                <small>Carte d'identité, Permis de conduire, Passport, Carte de séjour, etc... fonctionnent</small>
+                                <div class="documentsPreview" id="previewCI"></div>
+                            </div>
+                        </div>
+                        <div class="form-group doc-group">
+                            <label for="CarteVitale">Carte Vitale :</label>
+                            <div class="doc-line">
+                                <input type="file" id="CarteVitale" name="CarteVitale" required>
+                                <small>La carte vitale du parent si le patient est mineur...</small>
+                                <div class="documentsPreview" id="previewCV"></div>
+                            </div>
+                        </div>
+                        <div class="form-group doc-group">
+                            <label for="CarteMutuelle">Carte de mutuelle :</label>
+                            <div class="doc-line">
+                                <input type="file" id="CarteMutuelle" name="CarteMutuelle" required>
+                                <small>La carte de mutuelle connecter au numéro cité précédement...</small>
+                                <div class="documentsPreview" id="previewCM"></div>
+                            </div>
+                        </div>
+                        <div id="formMineur">
+                            <h3>Documents à fournir si l'enfant est mineur</h3>
+                            <div class="form-group doc-group">
+                                <label for="LivretFamille">Livret de Famille :</label>
+                                <div class="doc-line">
+                                    <input type="file" id="LivretFamille" name="LivretFamille" required>
+                                    <small>Le livret de famille du patient et de son responsable...</small>
+                                    <div class="documentsPreview" id="previewLF"></div>
+                                </div>
+                            </div>
+                            <div class="form-group doc-group">
+                                <label for="AutoSoin">Autorisation de soin :</label>
+                                <div class="doc-line">
+                                    <input type="file" id="AutoSoin" name="AutoSoin" required>
+                                    <small>L'autorisation de soin crée et mise en place par ses responsables légaux...</small>
+                                    <div class="documentsPreview" id="previewAS"></div>
+                                </div>
+                            </div>
+                            <div class="form-group doc-group">
+                                <label for="DecisionJuge">Decision du juge :</label>
+                                <div class="doc-line">
+                                    <input type="file" id="DecisionJuge" name="DecisionJuge" required>
+                                    <small>La decision du juge pour les soins prodiguée par la clinique...</small>
+                                    <div class="documentsPreview" id="previewDJ"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="button-row">
+                            <button type="button" id="nextStep5">Étape suivante →</button>
+                        </div>
+                    </form>
+                </div>
+        <div class="background-shape"></div>
+        <div class="background-shape2"></div>
+    </div>
+</body>
+<script src="../JAVASCRIPT/add-admission.js"></script>
+
+</html>
