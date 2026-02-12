@@ -49,6 +49,10 @@ try {
                 <li><a href="dashboard-admin.php" style="color:#fff; text-decoration:none;">Accueil</a></li>
                 <li><a href="add-admission.php" style="color:#fff; text-decoration:none;">Enregistrer une Pré-admission</a></li>
                 <li><a href="list-admission.php" style="color:#fff; text-decoration:none;">Liste des Pré-admissions</a></li>
+                <li>Enregistrer un nouveau personnel/utilisateur</li>
+                <li>Liste du personnels/utilisateurs</li>
+                <li>Enregistrer un nouveau service</li>
+                <li>Liste des services</li>
                 <li><a href="../logout.php" style="color:#fff; text-decoration:none;">Déconnexion</a></li>
             </ul>
         </div>
