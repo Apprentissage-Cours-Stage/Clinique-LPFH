@@ -19,9 +19,8 @@ try {
                     WHERE R.Libellé_Role = 'Medecin';";
     $result_medecin = $conn->query($sql_medecin);
 
-    $sql_chambre = "SELECT C.NumeroChambre, C.ID_Etage, CT.Type_Chambre
-                    FROM Chambre C
-                    INNER JOIN TypeChambre CT ON CT.ID_TypeChambre = C.ID_TypeChambre";
+    $sql_chambre = "SELECT TC.ID_TypeChambre, TC.Type_Chambre
+                    FROM TypeChambre TC";
     $result_chambre = $conn->query($sql_chambre);
 
     $sql_civilité = "SELECT ID_Civilité, Libellé_Civilité
@@ -49,7 +48,7 @@ try {
             <ul class="menu">
                 <li><a href="dashboard-secretary.php" style="color:#fff; text-decoration:none;">Accueil</a></li>
                 <li><a href="add-admission.php" style="color:#fff; text-decoration:none;">Enregistrer une Pré-admission</a></li>
-                <li>Liste des Pré-admissions</li>
+                <li><a href="list-admission.php" style="color:#fff; text-decoration:none;">Liste des Pré-admissions</a></li>
                 <li><a href="../logout.php" style="color:#fff; text-decoration:none;">Déconnexion</a></li>
             </ul>
         </div>
@@ -83,18 +82,18 @@ try {
                         </div>
                         <div class="form-group">
                             <label for="nomNaissance">Nom de naissance :</label>
-                            <input type="text" id="nomNaissance" name="nomNaissance" required>
+                            <input type="text" id="nomNaissance" name="nomNaissance" maxlength="150" required>
                         </div>
                         <div class="form-group married-row">
                             <label>
                                 <input type="checkbox" id="isMarried"> Marié(e)
                             </label>
                             <label for="nomEpouse">Nom d'épouse :</label>
-                            <input type="text" id="nomEpouse" name="nomEpouse" disabled>
+                            <input type="text" id="nomEpouse" name="nomEpouse" maxlength="150" disabled>
                         </div>
                         <div class="form-group">
                             <label for="prenom">Prénom :</label>
-                            <input type="text" id="prenom" name="prenom" required>
+                            <input type="text" id="prenom" name="prenom" maxlength="150" required>
                         </div>
                         <div class="form-group">
                             <label for="datenaissance">Date de naissance :</label>
@@ -102,23 +101,23 @@ try {
                         </div>
                         <div class="form-group">
                             <label for="addresse">Adresse :</label>
-                            <input type="text" id="addresse" name="addresse" required>
+                            <input type="text" id="addresse" name="addresse" maxlength="150" required>
                         </div>
                         <div class="form-group">
                             <label for="cp">Code Postal :</label>
-                            <input type="text" id="cp" name="cp" required>
+                            <input type="text" id="cp" name="cp" maxlength="5" pattern="[0-9]{5}" required>
                         </div>
                         <div class="form-group">
                             <label for="ville">Ville :</label>
-                            <input type="text" id="ville" name="ville" required>
+                            <input type="text" id="ville" name="ville" maxlength="100" required>
                         </div>
                         <div class="form-group">
                             <label for="telephone">Téléphone :</label>
-                            <input type="text" id="telephone" name="telephone" required>
+                            <input type="text" id="telephone" name="telephone" maxlength="10" pattern="[0-9]{10}" required>
                         </div>
                         <div class="form-group">
                             <label for="mail">Email :</label>
-                            <input type="text" id="mail" name="mail" required>
+                            <input type="text" id="mail" name="mail" maxlength="150" required>
                         </div>
                         <div class="button-row">
                             <button type="button" id="nextStep1">Étape suivante →</button>
@@ -130,11 +129,11 @@ try {
                     <form id="formStep2">
                         <div class="form-group">
                             <label for="nom_orga_social">Organisme de sécurité social / Nom de la caisse d'assurance maladie :</label>
-                            <input type="text" id="nom_orga_social" name="nom_orga_social" required>
+                            <input type="text" id="nom_orga_social" name="nom_orga_social" maxlength="150" required>
                         </div>
                         <div class="form-group">
                             <label for="num_secusocial">Numéro de sécurité social :</label>
-                            <input type="text" id="num_secusocial" name="num_secusocial" required>
+                            <input type="text" id="num_secusocial" name="num_secusocial" maxlength="15" pattern="[0-9]{15}" required>
                         </div>
                         <div class="form-group">
                             <label for="assure">Le patient est-il assuré ?</label>
@@ -154,11 +153,11 @@ try {
                         </div>
                         <div class="form-group">
                             <label for="nom_mutuelle">Nom de la mutuelle ou de l'assurance :</label>
-                            <input type="text" id="nom_mutuelle" name="nom_mutuelle" required>
+                            <input type="text" id="nom_mutuelle" name="nom_mutuelle" maxlength="150" required>
                         </div>
                         <div class="form-group">
                             <label for="num_adhérent">Numéro d'adhérent :</label>
-                            <input type="text" id="num_adhérent" name="num_adhérent" required>
+                            <input type="text" id="num_adhérent" name="num_adhérent" maxlength="50" pattern="[0-9]{50}" required>
                         </div>
                         <div class="form-group">
                             <label for="chambre">Chambre sélectionné :</label>
@@ -166,8 +165,8 @@ try {
                                 <option value="" selected disabled hidden>-- Sélectionner une chambre --</option>
                                 <?php if ($result_chambre && $result_chambre->num_rows > 0): ?>
                                     <?php while ($row = $result_chambre->fetch_assoc()): ?>
-                                        <option value="<?= htmlspecialchars($row['NumeroChambre']) ?>">
-                                            Chambre <?= htmlspecialchars($row['NumeroChambre']) ?> (Etage n°<?= htmlspecialchars($row['ID_Etage']) ?>) - <?= htmlspecialchars($row['Type_Chambre']) ?>
+                                        <option value="<?= htmlspecialchars($row['ID_TypeChambre']) ?>">
+                                            <?=htmlspecialchars($row['Type_Chambre'])?>
                                         </option>
                                     <?php endwhile; ?>
                                 <?php endif; ?>

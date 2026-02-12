@@ -22,7 +22,7 @@ $username = $_SESSION['username'];
             <ul class="menu">
                 <li><a href="dashboard-secretary.php" style="color:#fff; text-decoration:none;"> Accueil</a></li>
                 <li><a href="add-admission.php" style="color:#fff; text-decoration:none;">Enregistrer une Pré-admission</a></li>
-                <li>Liste des Pré-admissions</li>
+                <li><a href="list-admission.php" style="color:#fff; text-decoration:none;">Liste des Pré-admissions</a></li>
                 <li><a href="../logout.php" style="color:#fff; text-decoration:none;">Déconnexion</a></li>
             </ul>
         </div>

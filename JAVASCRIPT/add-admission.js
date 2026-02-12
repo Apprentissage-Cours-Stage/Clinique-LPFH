@@ -106,6 +106,98 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
+    function checkAgeForHospitalisation(dateValue) {
+        if (!dateValue) return { valid: false, message: "Date de naissance manquante" };
+
+        const birthDate = new Date(dateValue);
+        const today = new Date();
+
+        if (birthDate > today) {
+            return { valid: false, message: "La date de naissance ne peut pas être future." };
+        }
+
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || m === 0 && today.getDate() < birthDate.getDate()) {
+            age--;
+        }
+
+        const AGE_MIN = 1;
+        const AGE_MAX = 100;
+
+        if (age < AGE_MIN) {
+            return { valid: false, message: "Âge incompatible avec une hospitalisation." };
+        }
+
+        if (age > AGE_MAX) {
+            return { valid: false, message: "Âge biologiquement incohérent." };
+        }
+        return { valid: true, age: age };
+    }
+
+    function isValidNIR(nir) {
+        nir = nir.replace(/\s+/g, '');
+
+        if (nir.length !== 15) {
+            return false;
+        }
+
+        if (!/^[12][0-9]{14}$/.test(nir)) {
+            return false;
+        }
+
+        const nirBase = nir.substring(0, 13);
+        const cle = parseInt(nir.substring(13, 15), 10);
+
+        const nirNumber = parseInt(nirBase, 10);
+        const cleCalc = 97 - (nirNumber % 97);
+
+        return cle === cleCalc
+    }
+
+    function isNIRConsistent(nir, datenaissance, civilité) {
+        if (!isValidNIR(nir)) {
+            return false;
+        }
+        const sexeNIR = nir.charAt(0);
+        const anneeNIR = nir.substring(1, 3);
+        const moisNIR = nir.substring(3, 5);
+
+        const birthDate = new Date(datenaissance);
+        if (isNaN(birthDate)) return false;
+
+        const anneeNaissance = birthDate.getFullYear().toString().slice(-2);
+        const moisNaissance = (birthDate.getMonth() + 1).toString().padStart(2, '0');
+
+        if ((civilité === '1' && sexeNIR !== '1') || (civilité === '2' && sexeNIR !== '2')) {
+            return false;
+        }
+        if (anneeNIR !== anneeNaissance) {
+            return false;
+        } 
+        if (moisNIR !== moisNaissance) {
+            return false;
+        }
+        return true;
+    }
+
+    cp.addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '').slice(0,5);
+    });
+    telephone.addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+    });
+    numSecuSocial.addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 15);
+    });
+    numSecuSocial.addEventListener('blur', function () {
+        if(!isValidNIR(this.value)) {
+            alert("Numéro de sécurité sociale invalide.");
+            this.value = "";
+            this.focus();
+        }
+    })
+
     // ------------------ Gestion dynamique des form ------------------
     const isMultiPersonne = document.getElementById('isMultiPersonne');
     const personnesWrapper = document.getElementById('personnesWrapper');
@@ -134,49 +226,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function toggleDocumentByAge() {
-        const dateValue = datenaissance.value;
-        if (!dateValue) {
-            formMineur.style.display = 'none';
-            return;
-        }
-        const birthDate = new Date(dateValue);
-        const today = new Date();
-        // Calcul de l'âge
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const m = today.getMonth() - birthDate.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-        // Afficher Responsable si moins de 18 ans
-        if (age < 18) {
-            formMineur.style.display = 'block';
-        } else {
-            formMineur.style.display = 'none';
-        }
-    }
+    datenaissance.addEventListener('change', function () {
+        const result = checkAgeForHospitalisation(this.value);
 
-    function toggleResponsableByAge() {
-        const dateValue = datenaissance.value;
-        if (!dateValue) {
+        if (!result.valid) {
+            alert(result.message);
+            this.value = "";
+            formMineur.style.display = 'none';
             formResponsable.style.display = 'none';
             return;
         }
-        const birthDate = new Date(dateValue);
-        const today = new Date();
-        // Calcul de l'âge
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const m = today.getMonth() - birthDate.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-        // Afficher Responsable si moins de 18 ans
-        if (age < 18) {
+
+        // Gestion mineur / majeur
+        if (result.age < 18) {
+            formMineur.style.display = 'block';
             formResponsable.style.display = 'block';
         } else {
+            formMineur.style.display = 'none';
             formResponsable.style.display = 'none';
         }
-    }
+    })
 
     function setupDocumentPreview(inputId, previewId) {
         const input = document.getElementById(inputId);
@@ -210,7 +279,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     isMultiPersonne.addEventListener('change', toggleForms);
-    datenaissance.addEventListener('change', toggleResponsableByAge);
 
     // ------------------ Navigation entre steps ------------------
     const nextStep1Btn = document.getElementById('nextStep1');
@@ -220,6 +288,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextStep5Btn = document.getElementById('nextStep5');
 
     nextStep1Btn.addEventListener('click', () => {
+        const ageCheck = checkAgeForHospitalisation(datenaissance.value);
+        if (!ageCheck.valid) {
+            alert(ageCheck.message)
+            return;
+        }
         if (!nomNaissance.value || !datenaissance.value || !prenom.value || !addresse.value || !cp.value || !ville.value || !telephone.value || !mail.value || (isMarried.checked && !nomEpouse.value)) {
             alert('Veuillez remplir correctement tous les champs avant de continuer.');
             return;
@@ -246,6 +319,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     nextStep2Btn.addEventListener('click', async () => {
+        if (!isNIRConsistent(numSecuSocial.value, datenaissance.value, civilité.value)) {
+            alert("Le numéro de sécurité sociale ne correspond pas aux informations du patient.");
+            return;
+        }
         const StepPatient = JSON.parse(sessionStorage.getItem('StepPatient') || '{}');
         if (!nomOrgaSocial.value || !numSecuSocial.value || !isAssure.value || !isADL.value || !nomMutuelle.value || !numAdherent.value || !chambre.value) {
             alert('Veuillez remplir correctement tous les champs avant de continuer.');
