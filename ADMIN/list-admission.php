@@ -66,7 +66,7 @@ $resultTerminees = mysqli_stmt_get_result($stmtTerminees);
                 <li><a href="list-admission.php" style="color:#fff; text-decoration:none;">Liste des Pré-admissions</a></li>
                 <li>Enregistrer un nouveau personnel/utilisateur</li>
                 <li>Liste du personnels/utilisateurs</li>
-                <li>Enregistrer un nouveau service</li>
+                <li><a href="add-service.php" style="color:#fff; text-decoration:none;">Enregistrer un nouveau service</a></li>
                 <li>Liste des services</li>
                 <li><a href="../logout.php" style="color:#fff; text-decoration:none;">Déconnexion</a></li>
             </ul>
