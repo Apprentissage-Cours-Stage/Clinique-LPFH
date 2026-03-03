@@ -4,6 +4,11 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: ../index.php');
     exit;
 }
+
+$basePath = "../";   // IMPORTANT
+$context = "SECRETARY";
+$shownContext = "Secrétaire";
+
 $username = $_SESSION['username'];
 ?>
 <!DOCTYPE html>
@@ -13,19 +18,11 @@ $username = $_SESSION['username'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Secrétaire</title>
     <link rel="stylesheet" href="../CSS/dashboard.css">
+    <link rel="stylesheet" href="../INCLUDES/CSS/header.css">
 </head>
 <body>
     <div class="dashboard-container">
-        <div class="sidebar">
-            <img src="../INCLUDES/IMAGES/LPFSLogo.png" alt="Logo Clinique" class="logo">
-            <h2>Panel Secrétaire</h2>
-            <ul class="menu">
-                <li><a href="dashboard-secretary.php" style="color:#fff; text-decoration:none;"> Accueil</a></li>
-                <li><a href="add-admission.php" style="color:#fff; text-decoration:none;">Enregistrer une Pré-admission</a></li>
-                <li><a href="list-admission.php" style="color:#fff; text-decoration:none;">Liste des Pré-admissions</a></li>
-                <li><a href="../logout.php" style="color:#fff; text-decoration:none;">Déconnexion</a></li>
-            </ul>
-        </div>
+        <?php require_once "../INCLUDES/header.php"; ?>
         <div class="main-content">
             <h1>Bienvenue !</h1>
             <p>Votre ID utilisateur : <?php echo htmlspecialchars($username); ?></p>
