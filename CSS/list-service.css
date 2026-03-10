@@ -48,6 +48,38 @@ body {
     padding: 20px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+}
+
+.card-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+}
+
+/* Style des boutons/images */
+.card-actions a {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.card-actions a:hover {
+    transform: scale(1.2); /* Petit effet de zoom au survol */
+}
+
+.card-actions img {
+    width: 20px;  /* Ajuste la taille selon tes besoins */
+    height: 20px;
+    cursor: pointer;
+    filter: grayscale(100%); /* Optionnel : en gris par défaut */
+    transition: filter 0.2s;
+}
+
+/* Au survol du lien, on remet la couleur (ou on change le filtre) */
+.card-actions a:hover img {
+    filter: grayscale(0%);
 }
 
 .card:hover {

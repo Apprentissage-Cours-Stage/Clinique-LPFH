@@ -5,20 +5,22 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$basePath = "../";   // IMPORTANT
+$basePath = "../";   
 $context = "ADMIN";
 $shownContext = "Administrateur";
 
 require_once "../INCLUDES/db.php";
 
+// Utilisation du regroupement correct pour éviter les erreurs SQL (s.ID_Service)
 $sqlServices = "SELECT s.ID_Service, s.Libellé_Service, COUNT(p.ID_Personnel) AS NbPraticients
                 FROM service s
-                LEFT JOIN personnel p ON p.Id_Service = s.ID_Service
-                GROUP BY ID_Service
-                ORDER BY Libellé_Service ASC";
+                LEFT JOIN personnel p ON p.ID_Service = s.ID_Service
+                GROUP BY s.ID_Service, s.Libellé_Service
+                ORDER BY s.Libellé_Service ASC";
+
 $stmtService = mysqli_prepare($conn, $sqlServices);
 mysqli_stmt_execute($stmtService);
-$resultService = mysqli_stmt_get_result($stmtService)
+$resultService = mysqli_stmt_get_result($stmtService);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -26,7 +28,7 @@ $resultService = mysqli_stmt_get_result($stmtService)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ajout d'un Service - Administrateur</title>
+    <title>Services de l'établissement - Administrateur</title>
     <link rel="stylesheet" href="../CSS/list-service.css">
     <link rel="stylesheet" href="../INCLUDES/CSS/header.css">
 </head>
@@ -40,15 +42,18 @@ $resultService = mysqli_stmt_get_result($stmtService)
             <div class="card-container">
                 <?php while ($s = mysqli_fetch_assoc($resultService)): ?>
                     <div class="card">
-                        <h3><?= htmlspecialchars($s['Libellé_Service']) ?></h3>
-                        <p><strong>Activité :</strong> <?= $s['NbPraticients'] ?> utilisateurs enregistrées</p>
-
-                        <p style="margin-top:15px; text-align:right;">
-                            <a href="details_service.php?id=<?= $s['ID_Service'] ?>"
-                                style="color: #005f99; font-weight: bold; text-decoration: none; font-size: 0.85em;">
-                                Voir détails →
+                        <div class="card-actions">
+                            <a href="edit-service.php?id=<?= $s['ID_Service'] ?>" title="Modifier">
+                                <img src="../INCLUDES/ICONS/edit.png" alt="Modifier">
                             </a>
-                        </p>
+                            <a href="delete-service.php?id=<?= $s['ID_Service'] ?>"
+                                title="Supprimer"
+                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer le service <?= addslashes($s['Libellé_Service']) ?> ?');">
+                                <img src="../INCLUDES/ICONS/delete.png" alt="Supprimer">
+                            </a>
+                        </div>
+                        <h3><?= htmlspecialchars($s['Libellé_Service']) ?></h3>
+                        <p><strong>Activité :</strong> <?= $s['NbPraticients'] ?> utilisateur(s) enregistré(s)</p>
                     </div>
                 <?php endwhile; ?>
             </div>
@@ -59,5 +64,4 @@ $resultService = mysqli_stmt_get_result($stmtService)
         </div>
     </div>
 </body>
-
 </html>
