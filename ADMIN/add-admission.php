@@ -5,9 +5,9 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$basePath = "../";   // IMPORTANT
-$context = "SECRETARY";
-$shownContext = "Secrétaire";
+$basePath = "../";
+$context = "ADMIN";
+$shownContext = "Administrateur";
 
 //Utilisation de la BDD
 require_once "../INCLUDES/db.php";
