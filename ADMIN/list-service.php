@@ -21,6 +21,32 @@ $sqlServices = "SELECT s.ID_Service, s.Libellé_Service, COUNT(p.ID_Personnel) A
 $stmtService = mysqli_prepare($conn, $sqlServices);
 mysqli_stmt_execute($stmtService);
 $resultService = mysqli_stmt_get_result($stmtService);
+
+$message = "";
+$messageClass = "";
+
+if (isset($_GET['msg'])) {
+    if ($_GET['msg'] == 'deleted') {
+        $message = "Le service a été supprimé avec succès.";
+        $messageClass = "success";
+    }
+}
+
+if (isset($_GET['error'])) {
+    $messageClass = "error";
+    switch ($_GET['error']) {
+        case 'not_empty':
+            $count = isset($_GET['count']) ? intval($_GET['count']) : "?";
+            $message = "Impossible de supprimer : ce service contient encore <strong>$count</strong> membre(s) du personnel. Veuillez les changer de service puis réessayer.";
+            break;
+        case 'sql_error':
+            $message = "Une erreur technique est survenue lors de la suppression.";
+            break;
+        default:
+            $message = "Une erreur inconnue est survenue.";
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -38,6 +64,12 @@ $resultService = mysqli_stmt_get_result($stmtService);
         <?php require_once "../INCLUDES/header.php"; ?>
         <div class="content">
             <h1>Services de l'établissement</h1>
+
+            <?php if ($message): ?>
+                <div class="alert <?= $messageClass ?>">
+                    <?= $message ?>
+                </div>
+            <?php endif; ?>
 
             <div class="card-container">
                 <?php while ($s = mysqli_fetch_assoc($resultService)): ?>
