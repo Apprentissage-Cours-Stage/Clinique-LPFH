@@ -13,23 +13,23 @@ $shownContext = "Secrétaire";
 require_once "../INCLUDES/db.php";
 try {
     $sql_hospitype = "SELECT ID_TypeHospitalisation, Libellé_TypeHospitalisation
-                      FROM TypeHospitalisation
+                      FROM typehospitalisation
                       ORDER BY Libellé_TypeHospitalisation ASC;";
     $result_hospitype = $conn->query($sql_hospitype);
 
     $sql_medecin = "SELECT P.ID_Personnel, P.Nom_Personnel, S.Libellé_Service
-                    FROM Personnel P
-                    INNER JOIN Service S ON P.ID_Service = S.ID_Service
-                    INNER JOIN Role R ON P.Role_Personnel = R.ID_Role
+                    FROM personnel P
+                    INNER JOIN service S ON P.ID_Service = S.ID_Service
+                    INNER JOIN role R ON P.Role_Personnel = R.ID_Role
                     WHERE R.Libellé_Role = 'Medecin';";
     $result_medecin = $conn->query($sql_medecin);
 
     $sql_chambre = "SELECT TC.ID_TypeChambre, TC.Type_Chambre
-                    FROM TypeChambre TC";
+                    FROM typechambre TC";
     $result_chambre = $conn->query($sql_chambre);
 
     $sql_civilité = "SELECT ID_Civilité, Libellé_Civilité
-                     FROM Civilité";
+                     FROM civilité";
     $result_civilité = $conn->query($sql_civilité);
 } catch (PDOException $e) {
     die("Erreur de connexion : " . $e->getMessage());
