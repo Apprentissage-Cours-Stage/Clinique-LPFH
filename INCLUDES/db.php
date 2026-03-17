@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $host = "localhost";
-$dbname = "CliniqueLPFS";
+$dbname = "cliniquelpfs";
 $master_user = "AuthentificationLPFS2025";
 $master_pass = "AuthLPFS2025";
 
@@ -21,7 +21,7 @@ if (isset($_SESSION['username']) && isset($_SESSION['password'])) {
     $password = $_SESSION['password'];
 
     // Recherche dans la table users du compte SQL nominatif
-    $stmt = $masterConn->prepare("SELECT CompteSQL, MDP FROM Utilisateurs WHERE Identifiant_User = ? AND MDP = ? LIMIT 1");
+    $stmt = $masterConn->prepare("SELECT CompteSQL, MDP FROM utilisateurs WHERE Identifiant_User = ? AND MDP = ? LIMIT 1");
     $stmt->bind_param("ss", $username, $password);
     $stmt->execute();
     $stmt->bind_result($sql_user, $sql_pass);
