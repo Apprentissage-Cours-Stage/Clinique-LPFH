@@ -15,7 +15,7 @@ if (!isset($context)) {
         <li><a href="add-admission.php">Enregistrer une Pré-admission</a></li>
         <li><a href="list-admission.php">Liste des Pré-admissions</a></li>
         <?php if ($context === "ADMIN"): ?>
-            <li><a href="#">Enregistrer un nouveau personnel/utilisateur</a></li>
+            <li><a href="add-user.php">Enregistrer un nouveau personnel/utilisateur</a></li>
             <li><a href="#">Liste du personnel/utilisateurs</a></li>
             <li><a href="add-service.php">Enregistrer un nouveau service</a></li>
             <li><a href="list-service.php">Liste des services</a></li>
