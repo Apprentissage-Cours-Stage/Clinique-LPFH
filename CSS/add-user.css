@@ -1,0 +1,157 @@
+/* Styles de base conservés */
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #e9f4ff, #ffffff);
+    height: 100vh;
+    width: 100vw;
+    color: #333;
+}
+
+.dashboard-container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+}
+
+.content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.form-container {
+    width: 95%;
+    max-width: 1000px;
+    margin: 20px auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+}
+
+.form-container h1 {
+    color: #007bff;
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 30px;
+}
+
+/* Sections */
+.form-section { margin-bottom: 25px; }
+.form-section h3 { font-size: 18px; color: #4b5563; margin-bottom: 15px; border-left: 4px solid #007bff; padding-left: 10px; }
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+/* Double Formulaire */
+.dual-columns {
+    display: flex;
+    gap: 20px;
+    transition: all 0.4s ease;
+}
+
+.col {
+    flex: 1;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.portal-col { border-top: 5px solid #28a745; background: #f8fff9; }
+.sql-col { border-top: 5px solid #007bff; background: #f0f7ff; }
+
+.col h4 { margin: 0 0 15px 0; font-size: 16px; color: #1f2937; }
+
+/* Inputs */
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #4b5563; font-size: 14px; }
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.readonly-input { background: #f3f4f6; color: #6b7280; font-weight: bold; }
+
+.info-box {
+    margin-top: 10px;
+    padding: 8px;
+    background: #fff;
+    border: 1px solid #bae6fd;
+    font-size: 13px;
+    color: #0369a1;
+    border-radius: 4px;
+}
+
+/* Checkbox toggle */
+.flex-label { display: flex; align-items: center; gap: 12px; }
+#toggleSql { width: 20px; height: 20px; }
+
+/* Boutons */
+.btn-primary {
+    background: #007bff;
+    color: white;
+    padding: 15px 50px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-primary:hover { background: #0056b3; transform: translateY(-2px); }
+
+.message { background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c3e6cb; text-align: center;}
+.error { background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #f5c6cb; text-align: center;}
+
+/* Grille pour l'identité (Prénom, Nom, Service, Rôle) */
+.grid-identity {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 25px;
+}
+
+/* Barre de toggle pour les accès */
+.access-toggle-bar {
+    background: #f1f5f9;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px dashed #cbd5e1;
+    margin-bottom: 25px;
+    justify-content: center;
+}
+
+.access-toggle-bar label {
+    font-weight: 700;
+    color: #007bff;
+    cursor: pointer;
+}
+
+/* Aperçu des droits SQL */
+.rights-preview {
+    margin-top: 20px;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #007bff;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.rights-preview strong { color: #007bff; display: block; margin-bottom: 5px; }
+.rights-preview p { margin: 0; color: #475569; font-style: italic; }
+
+/* Responsive identity */
+@media (max-width: 600px) {
+    .grid-identity { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 850px) {
+    .dual-columns { flex-direction: column; }
+    .grid-3 { grid-template-columns: 1fr; }
+}
