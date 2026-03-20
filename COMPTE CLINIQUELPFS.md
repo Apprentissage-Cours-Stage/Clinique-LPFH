@@ -2,7 +2,9 @@
 
 *compte authentification*: `AuthentificationLPFS2025`, `AuthLPFS2025`
 
-*compte Claire Dupont (secrétaire)*: `ClaireDPT_secretariat`, `Cl@ireDPT1993`
+*compte Claire Dupont (Secrétaire)*: `sec_cdupont`, `Cl@ireDPT1993`
 
-*compte Administrateur*: `ADMINLPFS`, `ADMINLPFS2025`
+*compte Administrateur*: `adm_admin`, `ADMINLPFS2025`
+
+*compte Françoise Marquis (Chef de service Radiologie)*: `chs_marquis`, `Fr@ncoiseMQS1995`
 
