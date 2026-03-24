@@ -212,8 +212,8 @@ $roles = mysqli_query($conn, "SELECT * FROM role");
             if (nom && prenom) {
                 document.getElementById('db_username').value = prefix + prenom.charAt(0) + nom;
                 const emailField = document.getElementById('email_portail');
-                if (!emailField.value || emailField.value.includes('@clinique-lpfs.com')) {
-                    emailField.value = prenom + "." + nom + "@clinique-lpfs.com";
+                if (!emailField.value || emailField.value.includes('@LPFclinique8.com')) {
+                    emailField.value = prenom + "." + nom + "@LPFclinique8.com";
                 }
             }
             document.getElementById('rightsDesc').innerText = permissionsMap[roleId] || "Veuillez sélectionner un rôle.";
