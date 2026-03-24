@@ -115,11 +115,11 @@ $roles = mysqli_query($conn, "SELECT * FROM role");
                         <div class="grid-identity">
                             <div class="form-group">
                                 <label>Prénom</label>
-                                <input type="text" name="prenom" id="prenom" required oninput="updateLogins()">
+                                <input type="text" name="prenom" id="prenom" required>
                             </div>
                             <div class="form-group">
                                 <label>Nom</label>
-                                <input type="text" name="nom" id="nom" required oninput="updateLogins()">
+                                <input type="text" name="nom" id="nom" required>
                             </div>
                             <div class="form-group">
                                 <label>Service</label>
@@ -130,7 +130,7 @@ $roles = mysqli_query($conn, "SELECT * FROM role");
                             </div>
                             <div class="form-group">
                                 <label>Rôle (Permissions SQL)</label>
-                                <select name="role" id="roleSelect" required onchange="updateLogins()">
+                                <select name="role" id="roleSelect" required>
                                     <option value="" disabled selected>Choisir un rôle...</option>
                                     <?php while ($r = mysqli_fetch_assoc($roles)) echo "<option value='{$r['ID_Role']}'>" . htmlspecialchars($r['Libellé_Role']) . "</option>"; ?>
                                 </select>
@@ -179,54 +179,6 @@ $roles = mysqli_query($conn, "SELECT * FROM role");
         </div>
     </div>
 
-    <script>
-        const permissionsMap = {
-            "1": "ADMIN : Accès total sur toutes les tables.",
-            "2": "SECRETAIRE : Lecture/Écriture sur les dossiers patients.",
-            "3": "CHEF : Consultation complète (Lecture seule).",
-            "4": "PRATICIEN : Consultation complète (Lecture seule)."
-        };
-
-        function updateLogins() {
-            const nom = document.getElementById('nom').value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-            const prenom = document.getElementById('prenom').value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-            const roleSelect = document.getElementById('roleSelect');
-            const roleId = roleSelect.value;
-
-            let prefix = "";
-            switch (roleId) {
-                case "1":
-                    prefix = "adm_";
-                    break;
-                case "2":
-                    prefix = "sec_";
-                    break;
-                case "3":
-                    prefix = "chs_";
-                    break;
-                case "4":
-                    prefix = "med_";
-                    break;
-            }
-
-            if (nom && prenom) {
-                document.getElementById('db_username').value = prefix + prenom.charAt(0) + nom;
-                const emailField = document.getElementById('email_portail');
-                if (!emailField.value || emailField.value.includes('@LPFclinique8.com')) {
-                    emailField.value = prenom + "." + nom + "@LPFclinique8.com";
-                }
-            }
-            document.getElementById('rightsDesc').innerText = permissionsMap[roleId] || "Veuillez sélectionner un rôle.";
-        }
-
-        function toggleAccessSection() {
-            const isChecked = document.getElementById('toggleSql').checked;
-            const section = document.getElementById('accessSection');
-            section.style.opacity = isChecked ? "1" : "0.2";
-            section.style.pointerEvents = isChecked ? "auto" : "none";
-            section.querySelectorAll('input').forEach(i => i.required = isChecked);
-        }
-    </script>
+    <script src="../JAVASCRIPT/add-user.js"></script>
 </body>
-
 </html>
