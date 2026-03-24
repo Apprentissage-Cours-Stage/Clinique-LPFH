@@ -6,7 +6,8 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $recaptcha_secret = '6LcvLOErAAAAACv0bWt8HKRlj0jjE8lkkUUijHSK';
     $recaptcha_response = $_POST['g-recaptcha-response'] ?? '';
-    if (empty($_POST['g-recaptcha-response'])) {
+
+    if (empty($recaptcha_response)) {
         $error = "Captcha non rempli.";
     } else {
         $verify_response = file_get_contents('https://www.google.com/recaptcha/api/siteverify', false, stream_context_create([
@@ -24,11 +25,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "CAPTCHA invalide. Veuillez réessayer.";
         }
     }
+
     if (!$error) {
         $username = trim($_POST['username']);
         $password = trim($_POST['password']);
 
-        // Préparation de la requête
+        // 1. Chercher l'utilisateur
         $stmt = $conn->prepare("SELECT * FROM utilisateurs WHERE LOWER(Identifiant_User) = LOWER(?)");
         $stmt->bind_param("s", $username);
         $stmt->execute();
@@ -36,41 +38,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $result->fetch_assoc();
 
         if ($user) {
-            if ($password === $user['MDP']) { // si en clair
+            
+            // ✅ CORRECTION : Vérification du mot de passe haché
+            if (password_verify($password, $user['MDP'])) { 
+                
                 $_SESSION['user_id'] = $user['ID_Employé'];
                 $_SESSION['username'] = $user['Identifiant_User'];
-                $_SESSION['password'] = $user['MDP'];
+
+                // 2. Chercher le rôle (Uniquement si l'authentification a réussi !)
+                $stmtrole = $conn->prepare("SELECT R.Libellé_Role 
+                                            FROM role R
+                                            INNER JOIN personnel P ON P.Role_Personnel = R.ID_Role
+                                            INNER JOIN utilisateurs U ON U.ID_Employé = P.ID_Personnel
+                                            WHERE U.ID_Employé = ?");
+                $stmtrole->bind_param("i", $user['ID_Employé']);
+                $stmtrole->execute();
+                $resultrole = $stmtrole->get_result();
+                $role = $resultrole->fetch_assoc();
+
+                if ($role) {
+                    $_SESSION['role'] = $role['Libellé_Role'];
+                    
+                    switch (strtolower($_SESSION['role'])) {
+                        case 'secrétaire':
+                            header('Location: SECRETARY/dashboard-secretary.php');
+                            exit;
+                        case 'administrateur':
+                            header('Location: ADMIN/dashboard-admin.php');
+                            exit;
+                        default:
+                            $error = "Rôle non reconnu pour cet espace.";
+                    }
+                } else {
+                    $error = "Impossible de déterminer votre rôle d'accès.";
+                }
+
             } else {
-                $error = "Mot de passe incorrect";
+                $error = "Mot de passe incorrect.";
             }
         } else {
-            $error = "Identifiant introuvable";
-        }
-
-        $stmtrole = $conn->prepare("SELECT R.Libellé_Role 
-                                FROM role R
-                                INNER JOIN personnel P ON P.Role_Personnel = R.ID_Role
-                                INNER JOIN utilisateurs U ON U.ID_Employé = P.ID_Personnel
-                                WHERE U.ID_Employé = (?);");
-        $stmtrole->bind_param("i", $user['ID_Employé']);
-        $stmtrole->execute();
-        $resultrole = $stmtrole->get_result();
-        $role = $resultrole->fetch_assoc();
-
-        if($role) {
-            $_SESSION['role'] = $role['Libellé_Role'];
-            switch (strtolower($_SESSION['role'])) {
-                case 'secrétaire':
-                    header('Location: SECRETARY/dashboard-secretary.php');
-                    exit;
-                case 'administrateur':
-                    header('Location: ADMIN/dashboard-admin.php');
-                    exit;
-                default:
-                    $error = "Rôle non reconnu";
-            }
-        } else {
-            $error = "Impossible de déterminer le rôle";
+            $error = "Identifiant introuvable.";
         }
     }
 }
