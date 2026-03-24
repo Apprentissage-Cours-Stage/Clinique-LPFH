@@ -19,71 +19,91 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id_role = $_POST['role'];
     $id_service = $_POST['service'];
 
-    // 1. Insertion de l'employé
-    $stmtUser = mysqli_prepare($conn, "INSERT INTO personnel (Nom_Personnel, Prénom_Personnel, Role_Personnel, ID_Service) VALUES (?, ?, ?, ?)");
-    mysqli_stmt_bind_param($stmtUser, "ssii", $nom, $prenom, $id_role, $id_service);
+    // ==========================================
+    // 🔍 VÉRIFICATION DES DOUBLONS AVANT INSERTION
+    // ==========================================
+    $stmtCheck = mysqli_prepare($conn, "SELECT ID_Personnel FROM personnel WHERE Nom_Personnel = ? AND Prénom_Personnel = ?");
+    mysqli_stmt_bind_param($stmtCheck, "ss", $nom, $prenom);
+    mysqli_stmt_execute($stmtCheck);
+    $resCheck = mysqli_stmt_get_result($stmtCheck);
 
-    if (mysqli_stmt_execute($stmtUser)) {
-        $new_emp_id = mysqli_insert_id($conn);
-        $message = "Employé créé avec succès (ID: $new_emp_id). ";
-
-        if (isset($_POST['create_sql_user'])) {
-            $email_portail = $_POST['email_portail'];
-            $password_commun = $_POST['db_password'];
-            $sql_user = preg_replace('/[^a-zA-Z0-9_]/', '', $_POST['db_username']);
-            
-            // On définit le host sur % pour autoriser toutes les connexions distantes
-            $wildcard_host = "%"; 
-
-            try {
-                $escaped_password = mysqli_real_escape_string($conn, $password_commun);
-
-                // IMPORTANT : Création de l'utilisateur SQL MariaDB avec le mot de passe en clair pour le système
-                $sqlCreate = "CREATE USER IF NOT EXISTS '$sql_user'@'$wildcard_host' IDENTIFIED BY '$escaped_password'";
-
-                if (mysqli_query($conn, $sqlCreate)) {
-                    
-                    switch ($id_role) {
-                        case '1': // ADMIN
-                            mysqli_query($conn, "GRANT ALL PRIVILEGES ON `$dbname`.* TO '$sql_user'@'$wildcard_host' WITH GRANT OPTION");
-                            break;
-
-                        case '2': // SECRETAIRE
-                            $t_sec_select = ['typehospitalisation', 'personnel', 'civilité', 'chambre', 'typechambre', 'role', 'service'];
-                            foreach ($t_sec_select as $t) mysqli_query($conn, "GRANT SELECT ON `$dbname`.`$t` TO '$sql_user'@'$wildcard_host'");
-
-                            $t_sec_full = ['couverturesocial', 'personne_prevenir', 'patient', 'hospitalisation', 'preadmission', 'soustutellede', 'piecesjoints', 'responsable'];
-                            foreach ($t_sec_full as $t) mysqli_query($conn, "GRANT SELECT, INSERT, UPDATE, DELETE ON `$dbname`.`$t` TO '$sql_user'@'$wildcard_host'");
-                            break;
-
-                        case '3': // CHEF DE SERVICE
-                        case '4': // PRATICIEN
-                            $t_read_only = ['typehospitalisation', 'couverturesocial', 'civilité', 'chambre', 'typechambre', 'personne_prevenir', 'role', 'patient', 'hospitalisation', 'preadmission', 'soustutellede', 'piecesjoints', 'responsable', 'service', 'personnel'];
-                            foreach ($t_read_only as $t) {
-                                mysqli_query($conn, "GRANT SELECT ON `$dbname`.`$t` TO '$sql_user'@'$wildcard_host'");
-                            }
-                            break;
-                    }
-
-                    mysqli_query($conn, "FLUSH PRIVILEGES");
-
-                    // --- NOUVEAU : Hachage sécurisé du mot de passe pour la table utilisateurs ---
-                    $password_hache = password_hash($password_commun, PASSWORD_BCRYPT);
-
-                    $stmtSync = mysqli_prepare($conn, "INSERT INTO utilisateurs (Identifiant_User, MDP, CompteSQL, ID_Employé) VALUES (?, ?, ?, ?)");
-                    mysqli_stmt_bind_param($stmtSync, "sssi", $email_portail, $password_hache, $sql_user, $new_emp_id);
-                    mysqli_stmt_execute($stmtSync);
-
-                    $message .= "Accès distants (%) et SQL configurés.";
-                } else {
-                    throw new Exception(mysqli_error($conn));
-                }
-            } catch (Exception $e) {
-                $error = "Employé créé, mais échec des accès SQL : " . $e->getMessage();
-            }
-        }
+    if (mysqli_num_rows($resCheck) > 0) {
+        $error = "Erreur : Un employé nommé <strong>$prenom $nom</strong> existe déjà dans la base de données.";
     } else {
-        $error = "Erreur lors de l'insertion de l'employé.";
+        // Le personnel n'existe pas, on peut continuer l'insertion
+
+        // 1. Insertion de l'employé
+        $stmtUser = mysqli_prepare($conn, "INSERT INTO personnel (Nom_Personnel, Prénom_Personnel, Role_Personnel, ID_Service) VALUES (?, ?, ?, ?)");
+        mysqli_stmt_bind_param($stmtUser, "ssii", $nom, $prenom, $id_role, $id_service);
+
+        if (mysqli_stmt_execute($stmtUser)) {
+            $new_emp_id = mysqli_insert_id($conn);
+            $message = "Employé créé avec succès (ID: $new_emp_id). ";
+
+            if (isset($_POST['create_sql_user'])) {
+                $email_portail = $_POST['email_portail'];
+                $password_commun = $_POST['db_password'];
+                $sql_user = preg_replace('/[^a-zA-Z0-9_]/', '', $_POST['db_username']);
+                $wildcard_host = "%"; 
+
+                // --- Vérification supplémentaire : si l'identifiant email existe déjà ---
+                $stmtCheckEmail = mysqli_prepare($conn, "SELECT id_user FROM utilisateurs WHERE Identifiant_User = ?");
+                mysqli_stmt_bind_param($stmtCheckEmail, "s", $email_portail);
+                mysqli_stmt_execute($stmtCheckEmail);
+                $resCheckEmail = mysqli_stmt_get_result($stmtCheckEmail);
+
+                if (mysqli_num_rows($resCheckEmail) > 0) {
+                    $error = "L'employé a été créé, mais l'email portail <strong>$email_portail</strong> est déjà utilisé par un autre compte.";
+                } else {
+                    try {
+                        $escaped_password = mysqli_real_escape_string($conn, $password_commun);
+                        $sqlCreate = "CREATE USER IF NOT EXISTS '$sql_user'@'$wildcard_host' IDENTIFIED BY '$escaped_password'";
+
+                        if (mysqli_query($conn, $sqlCreate)) {
+                            
+                            switch ($id_role) {
+                                case '1': // ADMIN
+                                    mysqli_query($conn, "GRANT ALL PRIVILEGES ON `$dbname`.* TO '$sql_user'@'$wildcard_host' WITH GRANT OPTION");
+                                    break;
+
+                                case '2': // SECRETAIRE
+                                    $t_sec_select = ['typehospitalisation', 'personnel', 'civilité', 'chambre', 'typechambre', 'role', 'service'];
+                                    foreach ($t_sec_select as $t) mysqli_query($conn, "GRANT SELECT ON `$dbname`.`$t` TO '$sql_user'@'$wildcard_host'");
+
+                                    $t_sec_full = ['couverturesocial', 'personne_prevenir', 'patient', 'hospitalisation', 'preadmission', 'soustutellede', 'piecesjoints', 'responsable'];
+                                    foreach ($t_sec_full as $t) mysqli_query($conn, "GRANT SELECT, INSERT, UPDATE, DELETE ON `$dbname`.`$t` TO '$sql_user'@'$wildcard_host'");
+                                    break;
+
+                                case '3': // CHEF DE SERVICE
+                                case '4': // PRATICIEN
+                                    $t_read_only = ['typehospitalisation', 'couverturesocial', 'civilité', 'chambre', 'typechambre', 'personne_prevenir', 'role', 'patient', 'hospitalisation', 'preadmission', 'soustutellede', 'piecesjoints', 'responsable', 'service', 'personnel'];
+                                    foreach ($t_read_only as $t) {
+                                        mysqli_query($conn, "GRANT SELECT ON `$dbname`.`$t` TO '$sql_user'@'$wildcard_host'");
+                                    }
+                                    break;
+                            }
+
+                            mysqli_query($conn, "FLUSH PRIVILEGES");
+
+                            // Hachage du mot de passe pour la table locale
+                            $password_hache = password_hash($password_commun, PASSWORD_BCRYPT);
+
+                            $stmtSync = mysqli_prepare($conn, "INSERT INTO utilisateurs (Identifiant_User, MDP, CompteSQL, ID_Employé) VALUES (?, ?, ?, ?)");
+                            mysqli_stmt_bind_param($stmtSync, "sssi", $email_portail, $password_hache, $sql_user, $new_emp_id);
+                            mysqli_stmt_execute($stmtSync);
+
+                            $message .= "Accès distants (%) et SQL configurés.";
+                        } else {
+                            throw new Exception(mysqli_error($conn));
+                        }
+                    } catch (Exception $e) {
+                        $error = "Employé créé, mais échec des accès SQL : " . $e->getMessage();
+                    }
+                }
+            }
+        } else {
+            $error = "Erreur lors de l'insertion de l'employé.";
+        }
     }
 }
 
