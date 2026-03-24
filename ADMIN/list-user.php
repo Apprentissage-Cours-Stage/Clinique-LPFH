@@ -66,7 +66,7 @@ if (isset($_GET['msg'])) {
                 <?php while ($p = mysqli_fetch_assoc($resultPersonnel)): ?>
                     <div class="card">
                         <div class="card-actions">
-                            <a href="edit-employe.php?id=<?= $p['ID_Personnel'] ?>" title="Modifier">
+                            <a href="edit-user.php?id=<?= $p['ID_Personnel'] ?>" title="Modifier">
                                 <img src="../INCLUDES/ICONS/edit.png" alt="Modifier">
                             </a>
                             <a href="delete-employe.php?id=<?= $p['ID_Personnel'] ?>"
