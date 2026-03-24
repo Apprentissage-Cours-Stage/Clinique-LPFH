@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             try {
                 $escaped_password = mysqli_real_escape_string($conn, $password_commun);
 
-                // IMPORTANT : On utilise le host '%' ici aussi
+                // IMPORTANT : Création de l'utilisateur SQL MariaDB avec le mot de passe en clair pour le système
                 $sqlCreate = "CREATE USER IF NOT EXISTS '$sql_user'@'$wildcard_host' IDENTIFIED BY '$escaped_password'";
 
                 if (mysqli_query($conn, $sqlCreate)) {
@@ -67,8 +67,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     mysqli_query($conn, "FLUSH PRIVILEGES");
 
+                    // --- NOUVEAU : Hachage sécurisé du mot de passe pour la table utilisateurs ---
+                    $password_hache = password_hash($password_commun, PASSWORD_BCRYPT);
+
                     $stmtSync = mysqli_prepare($conn, "INSERT INTO utilisateurs (Identifiant_User, MDP, CompteSQL, ID_Employé) VALUES (?, ?, ?, ?)");
-                    mysqli_stmt_bind_param($stmtSync, "sssi", $email_portail, $password_commun, $sql_user, $new_emp_id);
+                    mysqli_stmt_bind_param($stmtSync, "sssi", $email_portail, $password_hache, $sql_user, $new_emp_id);
                     mysqli_stmt_execute($stmtSync);
 
                     $message .= "Accès distants (%) et SQL configurés.";
@@ -141,7 +144,7 @@ $roles = mysqli_query($conn, "SELECT * FROM role");
                     <hr>
 
                     <div class="flex-label access-toggle-bar">
-                        <input type="checkbox" name="create_sql_user" id="toggleSql" checked onchange="toggleAccessSection()">
+                        <input type="checkbox" name="create_sql_user" id="toggleSql" checked>
                         <label for="toggleSql">Générer les accès au portail intranet</label>
                     </div>
 
