@@ -12,4 +12,4 @@
 
 *compte Hugues Faure (Chef de service Chirurgie)*: `chs_acovillon`, `Al€x@ndr!eCVN2002`
 
-*compte Sophie Martin (Praticien Chirurgie)*: `med_fmartin`, `S0phieMRT1997`
+*compte Sophie Martin (Praticien Chirurgie)*: `med_smartin`, `S0phieMRT1997`
