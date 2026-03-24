@@ -38,6 +38,20 @@ if (isset($_GET['msg'])) {
         $messageClass = "success";
     }
 }
+
+if (isset($_GET['error'])) {
+    $messageClass = "error";
+    switch ($_GET['error']) {
+        case 'medecin_actif':
+            $count = $_GET['count'] ?? '?';
+            $message = "Impossible de supprimer ce praticien : il est rattaché à <strong>$count dossier(s) de pré-admission en cours</strong>.";
+            break;
+        case 'sql_error':
+            $message = "Une erreur technique interne s'est produite lors de la suppression.";
+            break;
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -69,7 +83,7 @@ if (isset($_GET['msg'])) {
                             <a href="edit-user.php?id=<?= $p['ID_Personnel'] ?>" title="Modifier">
                                 <img src="../INCLUDES/ICONS/edit.png" alt="Modifier">
                             </a>
-                            <a href="delete-employe.php?id=<?= $p['ID_Personnel'] ?>"
+                            <a href="delete-user.php?id=<?= $p['ID_Personnel'] ?>"
                                 title="Supprimer"
                                 onclick="return confirm('Êtes-vous sûr de vouloir supprimer <?= addslashes($p['Prénom_Personnel'] . ' ' . $p['Nom_Personnel']) ?> ?');">
                                 <img src="../INCLUDES/ICONS/delete.png" alt="Supprimer">
