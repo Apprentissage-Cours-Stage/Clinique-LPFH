@@ -102,7 +102,7 @@ $roles = mysqli_query($conn, "SELECT * FROM role");
     <div class="dashboard-container">
         <?php require_once "../INCLUDES/header.php"; ?>
 
-        <div class="content">
+        <div class="main-content">
             <div class="form-container">
                 <h1>Fiche de Nouvel Employé</h1>
 
