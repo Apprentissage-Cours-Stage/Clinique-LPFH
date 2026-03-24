@@ -220,6 +220,30 @@ button[type="submit"]:hover {
 .message { color: #155724; background: #d4edda; padding: 15px; border-radius: 8px; border: 1px solid #c3e6cb; margin-bottom: 20px; text-align: center; }
 .error { color: #721c24; background: #f8d7da; padding: 15px; border-radius: 8px; border: 1px solid #f5c6cb; margin-bottom: 20px; text-align: center; }
 
+/* Le conteneur doit être en 'relative' pour que le bouton 'absolute' se repère par rapport à lui */
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* On laisse de la marge à droite pour pas que le texte chevauche le cadenas */
+.password-container input {
+    width: 100%;
+    padding-right: 40px; 
+}
+
+/* Positionnement du bouton */
+.toggle-btn {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0;
+}
+
 @media (max-width: 850px) {
     .dual-columns { flex-direction: column; }
     .grid-identity { grid-template-columns: 1fr; }

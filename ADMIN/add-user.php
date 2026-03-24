@@ -44,23 +44,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $email_portail = $_POST['email_portail'];
                 $password_commun = $_POST['db_password'];
                 $sql_user = preg_replace('/[^a-zA-Z0-9_]/', '', $_POST['db_username']);
-                $wildcard_host = "%"; 
+                $wildcard_host = "%";
 
                 // --- Vérification supplémentaire : si l'identifiant email existe déjà ---
-                $stmtCheckEmail = mysqli_prepare($conn, "SELECT id_user FROM utilisateurs WHERE Identifiant_User = ?");
+                $stmtCheckEmail = mysqli_prepare($conn, "SELECT ID_Employé FROM utilisateurs WHERE Identifiant_User = ?");
                 mysqli_stmt_bind_param($stmtCheckEmail, "s", $email_portail);
                 mysqli_stmt_execute($stmtCheckEmail);
                 $resCheckEmail = mysqli_stmt_get_result($stmtCheckEmail);
 
                 if (mysqli_num_rows($resCheckEmail) > 0) {
-                    $error = "L'employé a été créé, mais l'email portail <strong>$email_portail</strong> est déjà utilisé par un autre compte.";
+                    $error = "L'employé a été créé, mais l'email portail $email_portail est déjà utilisé par un autre compte.";
                 } else {
                     try {
                         $escaped_password = mysqli_real_escape_string($conn, $password_commun);
                         $sqlCreate = "CREATE USER IF NOT EXISTS '$sql_user'@'$wildcard_host' IDENTIFIED BY '$escaped_password'";
 
                         if (mysqli_query($conn, $sqlCreate)) {
-                            
+
                             switch ($id_role) {
                                 case '1': // ADMIN
                                     mysqli_query($conn, "GRANT ALL PRIVILEGES ON `$dbname`.* TO '$sql_user'@'$wildcard_host' WITH GRANT OPTION");
@@ -177,7 +177,10 @@ $roles = mysqli_query($conn, "SELECT * FROM role");
                             </div>
                             <div class="form-group">
                                 <label>Mot de passe unique</label>
-                                <input type="password" name="db_password" id="main_pass" required>
+                                <div class="password-container">
+                                    <input type="password" name="db_password" id="main_pass" required>
+                                    <button type="button" id="togglePassword" class="toggle-btn">🔒</button>
+                                </div>
                             </div>
                         </div>
 
@@ -203,5 +206,16 @@ $roles = mysqli_query($conn, "SELECT * FROM role");
     </div>
 
     <script src="../JAVASCRIPT/add-user.js"></script>
+    <script>
+        const togglePassword = document.getElementById("togglePassword");
+        const passwordInput = document.getElementById("main_pass");
+
+        togglePassword.addEventListener("click", () => {
+            const isPassword = passwordInput.type === "password";
+            passwordInput.type = isPassword ? "text" : "password";
+            togglePassword.textContent = isPassword ? "🔓" : "🔒";
+        });
+    </script>
 </body>
+
 </html>

@@ -215,7 +215,10 @@ $roles = mysqli_query($conn, "SELECT * FROM role");
                                 </div>
                                 <div class="form-group">
                                     <label>Réinitialiser le mot de passe</label>
-                                    <input type="password" name="db_password" id="main_pass" required placeholder="Nouveau mot de passe">
+                                    <div class="password-container">
+                                        <input type="password" name="db_password" id="main_pass" required placeholder="Nouveau mot de passe">
+                                        <button type="button" id="togglePassword" class="toggle-btn">🔒</button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -243,6 +246,16 @@ $roles = mysqli_query($conn, "SELECT * FROM role");
     </div>
 
     <script src="../JAVASCRIPT/add-user.js"></script>
+    <script>
+        const togglePassword = document.getElementById("togglePassword");
+        const passwordInput = document.getElementById("main_pass");
+
+        togglePassword.addEventListener("click", () => {
+            const isPassword = passwordInput.type === "password";
+            passwordInput.type = isPassword ? "text" : "password";
+            togglePassword.textContent = isPassword ? "🔓" : "🔒";
+        });
+    </script>
 </body>
 
 </html>
