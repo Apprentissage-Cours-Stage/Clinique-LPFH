@@ -23,6 +23,13 @@ if (!isset($context)) {
             <li><a href="list-user.php">Liste du personnel/utilisateurs</a></li>
             <li><a href="add-service.php">Enregistrer un nouveau service</a></li>
             <li><a href="list-service.php">Liste des services</a></li>
+        <?php elseif ($context === "DOCTOR"): ?>
+            <li><a href="dashboard-<?= strtolower($context) ?>.php">Accueil</a></li>
+            <li><a href="#">Liste de mes pré-admissions</a></li>
+        <?php elseif ($context === "HEAD"): ?>
+            <li><a href="dashboard-<?= strtolower($context) ?>.php">Accueil</a></li>
+            <li><a href="#">Liste des pré-admissions de mon service</a></li>
+            <li><a href="#">Liste des employées de mon service</a></li>
         <?php endif; ?>
         <li><a href="../logout.php">Déconnexion</a></li>
     </ul>
