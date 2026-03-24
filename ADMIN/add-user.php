@@ -76,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                                 case '3': // CHEF DE SERVICE
                                 case '4': // PRATICIEN
-                                    $t_read_only = ['typehospitalisation', 'couverturesocial', 'civilité', 'chambre', 'typechambre', 'personne_prevenir', 'role', 'patient', 'hospitalisation', 'preadmission', 'soustutellede', 'piecesjoints', 'responsable', 'service', 'personnel'];
+                                    $t_read_only = ['typehospitalisation', 'couverturesocial', 'civilité', 'chambre', 'typechambre', 'personne_prevenir', 'role', 'patient', 'hospitalisation', 'preadmission', 'soustutellede', 'piecesjoints', 'responsable', 'service', 'personnel', 'utilisateurs'];
                                     foreach ($t_read_only as $t) {
                                         mysqli_query($conn, "GRANT SELECT ON `$dbname`.`$t` TO '$sql_user'@'$wildcard_host'");
                                     }
