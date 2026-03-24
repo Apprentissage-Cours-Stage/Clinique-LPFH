@@ -15,46 +15,46 @@ $dbname = "cliniquelpfs";
 $master_user = "AuthentificationLPFS2025";
 $master_pass = "AuthLPFS2025";
 
-// Connexion maître
+// 1. Connexion maître (Sert uniquement à s'authentifier)
 $masterConn = new mysqli($host, $master_user, $master_pass, $dbname);
 if ($masterConn->connect_error) {
-    die("Connexion échouée: " . $masterConn->connect_error);
+    die("Connexion maître échouée: " . $masterConn->connect_error);
 }
 $masterConn->set_charset("utf8");
 
-// Vérifier si l'utilisateur est connecté via le formulaire d'authentification
-if (isset($_SESSION['username']) && isset($_SESSION['password'])) {
+// 2. Si l'utilisateur est authentifié sur le portail (on a son email) mais qu'on a pas encore son username SQL
+if (isset($_SESSION['username']) && !isset($_SESSION['sql_user'])) {
     $username = $_SESSION['username'];
-    $password = $_SESSION['password'];
 
-    // Recherche dans la table users du compte SQL nominatif
-    $stmt = $masterConn->prepare("SELECT CompteSQL, MDP FROM utilisateurs WHERE Identifiant_User = ? AND MDP = ? LIMIT 1");
-    $stmt->bind_param("ss", $username, $password);
+    $stmt = $masterConn->prepare("SELECT CompteSQL FROM utilisateurs WHERE LOWER(Identifiant_User) = LOWER(?) LIMIT 1");
+    $stmt->bind_param("s", $username);
     $stmt->execute();
-    $stmt->bind_result($sql_user, $sql_pass);
+    $stmt->bind_result($sql_user);
 
     if ($stmt->fetch()) {
-        // On a trouvé un compte SQL nominatif
-        $_SESSION['sql_user'] = $sql_user;
-        $_SESSION['sql_pass'] = $sql_pass;
+        $_SESSION['sql_user'] = $sql_user; // On le garde en session pour la suite
     }
     $stmt->close();
 }
 
-// Si l'utilisateur est déjà connecté et qu'on a enregistré le compte SQL nominatif :
-if (isset($_SESSION['sql_user']) && isset($_SESSION['sql_pass'])) {
+// 3. Établissement de la connexion finale ($conn)
+if (isset($_SESSION['sql_user']) && isset($_SESSION['clear_password'])) {
+    
+    // On se connecte IMMÉDIATEMENT avec le compte nominatif de l'employé
     $sql_user = $_SESSION['sql_user'];
-    $sql_pass = $_SESSION['sql_pass'];
+    $sql_pass = $_SESSION['clear_password'];
+
     $nominalConn = new mysqli($host, $sql_user, $sql_pass, $dbname);
 
     if ($nominalConn->connect_error) {
-        die("Connexion échouée avec le compte nominatif : " . $nominalConn->connect_error);
+        session_destroy();
+        die("Connexion échouée avec le compte nominatif SQL. Veuillez vous reconnecter.");
     }
 
     $nominalConn->set_charset("utf8");
-    $conn = $nominalConn; // <- variable universelle accessible partout
+    $conn = $nominalConn; // $conn prend les droits métiers de l'employé (Secrétaire, Admin, etc.)
 } else {
-    // Si pas encore connecté, on reste sur la connexion maître
+    // Si l'utilisateur n'est pas pleinement connecté (ex: page index.php), on laisse le compte Maître
     $conn = $masterConn;
 }
 ?>
