@@ -103,3 +103,25 @@ body {
   display: flex;
   justify-content: center;
 }
+
+.password-container {
+    position: relative; /* Référence pour le bouton absolute */
+    display: flex;
+    align-items: center;
+}
+
+/* On force un décalage à droite du texte pour pas qu'il s'écrive par dessus l'icône */
+.password-container input {
+    padding-right: 45px; 
+}
+
+.toggle-btn {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0;
+    user-select: none;
+}

@@ -38,14 +38,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $result->fetch_assoc();
 
         if ($user) {
-            
-            // ✅ CORRECTION : Vérification du mot de passe haché
-            if (password_verify($password, $user['MDP'])) { 
-                
+
+            if (password_verify($password, $user['MDP'])) {
+
                 $_SESSION['user_id'] = $user['ID_Employé'];
                 $_SESSION['username'] = $user['Identifiant_User'];
 
-                // 2. Chercher le rôle (Uniquement si l'authentification a réussi !)
+                // 🔥 LA CLÉ EST ICI : On stocke le mdp tapé en clair pour que db.php puisse s'en servir pour MySQL
+                $_SESSION['clear_password'] = $password;
+
+                // 2. Chercher le rôle
                 $stmtrole = $conn->prepare("SELECT R.Libellé_Role 
                                             FROM role R
                                             INNER JOIN personnel P ON P.Role_Personnel = R.ID_Role
@@ -58,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($role) {
                     $_SESSION['role'] = $role['Libellé_Role'];
-                    
+
                     switch (strtolower($_SESSION['role'])) {
                         case 'secrétaire':
                             header('Location: SECRETARY/dashboard-secretary.php');
@@ -72,7 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     $error = "Impossible de déterminer votre rôle d'accès.";
                 }
-
             } else {
                 $error = "Mot de passe incorrect.";
             }
@@ -83,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!DOCTYPE html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -90,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="CSS/index.css">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
+
 <body>
     <div class="login-container">
         <div class="background-shape"></div>
@@ -97,20 +100,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <img src="INCLUDES/IMAGES/LPFSLogo.png" alt="Logo LPFS">
         <h2>Connexion Intranet</h2>
         <form method="POST">
-             <div class="input-group">
+            <div class="input-group">
                 <label for="username">Identifiant</label>
                 <input type="text" id="username" name="username" placeholder="Votre identifiant" required>
-             </div>
-             <div class="input-group">
+            </div>
+            <div class="input-group">
                 <label for="password">Mot de passe</label>
-                <input type="password" id="password" name="password" placeholder="Votre mot de passe" required>
-             </div>
-             <?php if($error): ?>
+                <div class="password-container">
+                    <input type="password" name="password" id="password" required placeholder="Votre mot de passe">
+
+                    <button type="button" id="togglePassword" class="toggle-btn">🔒</button>
+                </div>
+            </div>
+            <?php if ($error): ?>
                 <p class="error-message"><?= htmlspecialchars($error) ?></p>
-             <?php endif; ?>
-             <div class="g-recaptcha" data-sitekey="6LcvLOErAAAAAIN3FVSUcGg0r2JL7ImVeRAiJ3fn"></div>
-             <br>
-             <button type="submit" class="login-btn">Se connecter</button>
+            <?php endif; ?>
+            <div class="g-recaptcha" data-sitekey="6LcvLOErAAAAAIN3FVSUcGg0r2JL7ImVeRAiJ3fn"></div>
+            <br>
+            <button type="submit" class="login-btn">Se connecter</button>
         </form>
         <div class="footer">
             © 2025 Clinique LPFS - Portail sécurisé
@@ -118,3 +125,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </body>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script>
+    const togglePassword = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("password");
+
+    togglePassword.addEventListener("click", () => {
+        const isPassword = passwordInput.type === "password";
+        passwordInput.type = isPassword ? "text" : "password";
+        togglePassword.textContent = isPassword ? "🔓" : "🔒";
+    });
+</script>
