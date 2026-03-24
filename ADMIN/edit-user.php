@@ -54,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         try {
             $escaped_password = mysqli_real_escape_string($conn, $password_commun);
 
-            // 1. Gestion de l'utilisateur MariaDB/MySQL
+            // 1. Gestion de l'utilisateur MariaDB/MySQL (Garde le mdp clair ici pour la commande SQL système)
             $sqlCreate = "CREATE USER IF NOT EXISTS '$sql_user'@'$wildcard_host' IDENTIFIED BY '$escaped_password'";
             $sqlAlter = "ALTER USER '$sql_user'@'$wildcard_host' IDENTIFIED BY '$escaped_password'";
 
@@ -82,8 +82,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             mysqli_query($conn, "FLUSH PRIVILEGES");
 
+            // --- NOUVEAU : HACHAGE DU MOT DE PASSE POUR LE PORTAIL ---
+            $password_hache = password_hash($password_commun, PASSWORD_BCRYPT);
+
             // 3. Liaison locale dans la table `utilisateurs`
-            // Vérifier si le compte existe déjà pour faire un UPDATE ou un INSERT
             $checkUser = mysqli_prepare($conn, "SELECT ID_Employé FROM utilisateurs WHERE ID_Employé = ?");
             mysqli_stmt_bind_param($checkUser, "i", $id_personnel);
             mysqli_stmt_execute($checkUser);
@@ -91,14 +93,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if (mysqli_num_rows($resCheck) > 0) {
                 $stmtSync = mysqli_prepare($conn, "UPDATE utilisateurs SET Identifiant_User = ?, MDP = ?, CompteSQL = ? WHERE ID_Employé = ?");
-                mysqli_stmt_bind_param($stmtSync, "sssi", $email_portail, $password_commun, $sql_user, $id_personnel);
+                mysqli_stmt_bind_param($stmtSync, "sssi", $email_portail, $password_hache, $sql_user, $id_personnel);
             } else {
                 $stmtSync = mysqli_prepare($conn, "INSERT INTO utilisateurs (Identifiant_User, MDP, CompteSQL, ID_Employé) VALUES (?, ?, ?, ?)");
-                mysqli_stmt_bind_param($stmtSync, "sssi", $email_portail, $password_commun, $sql_user, $id_personnel);
+                mysqli_stmt_bind_param($stmtSync, "sssi", $email_portail, $password_hache, $sql_user, $id_personnel);
             }
             mysqli_stmt_execute($stmtSync);
 
-            $message = "Accès portail et base de données mis à jour avec succès.";
+            $message = "Accès portail (haché) et base de données mis à jour avec succès.";
         } catch (Exception $e) {
             $error = "Échec de la configuration des accès SQL : " . $e->getMessage();
         }
@@ -108,7 +110,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 /* ==========================================
    RECUPERATION DES DONNEES ACTUELLES
    ========================================== */
-// Informations de l'employé
 $stmtEmp = mysqli_prepare($conn, "SELECT * FROM personnel WHERE ID_Personnel = ?");
 mysqli_stmt_bind_param($stmtEmp, "i", $id_personnel);
 mysqli_stmt_execute($stmtEmp);
@@ -119,7 +120,6 @@ if (!$emp) {
     exit;
 }
 
-// Informations de son compte utilisateur
 $stmtU = mysqli_prepare($conn, "SELECT * FROM utilisateurs WHERE ID_Employé = ?");
 mysqli_stmt_bind_param($stmtU, "i", $id_personnel);
 mysqli_stmt_execute($stmtU);
@@ -162,17 +162,17 @@ $roles = mysqli_query($conn, "SELECT * FROM role");
                         <div class="grid-identity">
                             <div class="form-group">
                                 <label>Prénom</label>
-                                <input type="text" name="prenom" id="prenom" required value="<?= htmlspecialchars($emp['Prénom_Personnel']) ?>" oninput="updateLogins()">
+                                <input type="text" name="prenom" id="prenom" required value="<?= htmlspecialchars($emp['Prénom_Personnel']) ?>">
                             </div>
                             <div class="form-group">
                                 <label>Nom</label>
-                                <input type="text" name="nom" id="nom" required value="<?= htmlspecialchars($emp['Nom_Personnel']) ?>" oninput="updateLogins()">
+                                <input type="text" name="nom" id="nom" required value="<?= htmlspecialchars($emp['Nom_Personnel']) ?>">
                             </div>
                             <div class="form-group">
                                 <label>Service</label>
                                 <select name="service" required>
                                     <?php
-                                    mysqli_data_seek($services, 0); // Reset le curseur MySQL
+                                    mysqli_data_seek($services, 0);
                                     while ($s = mysqli_fetch_assoc($services)):
                                         $selected = ($s['ID_Service'] == $emp['ID_Service']) ? "selected" : "";
                                     ?>
@@ -182,9 +182,9 @@ $roles = mysqli_query($conn, "SELECT * FROM role");
                             </div>
                             <div class="form-group">
                                 <label>Rôle (Permissions SQL)</label>
-                                <select name="role" id="roleSelect" required onchange="updateLogins()">
+                                <select name="role" id="roleSelect" required>
                                     <?php
-                                    mysqli_data_seek($roles, 0); // Reset le curseur
+                                    mysqli_data_seek($roles, 0);
                                     while ($r = mysqli_fetch_assoc($roles)):
                                         $selected = ($r['ID_Role'] == $emp['Role_Personnel']) ? "selected" : "";
                                     ?>
@@ -214,8 +214,8 @@ $roles = mysqli_query($conn, "SELECT * FROM role");
                                     <input type="email" name="email_portail" id="email_portail" required value="<?= htmlspecialchars($userAccount['Identifiant_User'] ?? '') ?>">
                                 </div>
                                 <div class="form-group">
-                                    <label>Mot de passe unique (ou nouveau)</label>
-                                    <input type="password" name="db_password" id="main_pass" required value="<?= htmlspecialchars($userAccount['MDP'] ?? '') ?>">
+                                    <label>Réinitialiser le mot de passe</label>
+                                    <input type="password" name="db_password" id="main_pass" required placeholder="Nouveau mot de passe">
                                 </div>
                             </div>
 
@@ -242,57 +242,7 @@ $roles = mysqli_query($conn, "SELECT * FROM role");
         </div>
     </div>
 
-    <script>
-        const permissionsMap = {
-            "1": "ADMIN : Accès total sur toutes les tables.",
-            "2": "SECRETAIRE : Lecture/Écriture sur les dossiers patients.",
-            "3": "CHEF : Consultation complète (Lecture seule).",
-            "4": "PRATICIEN : Consultation complète (Lecture seule)."
-        };
-
-        function updateLogins() {
-            const nom = document.getElementById('nom').value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-            const prenom = document.getElementById('prenom').value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-            const roleSelect = document.getElementById('roleSelect');
-            const roleId = roleSelect.value;
-
-            // Synchroniser le rôle actuel dans le 2ème formulaire invisible
-            document.getElementById('role_sql_hidden').value = roleId;
-
-            let prefix = "";
-            switch (roleId) {
-                case "1":
-                    prefix = "adm_";
-                    break;
-                case "2":
-                    prefix = "sec_";
-                    break;
-                case "3":
-                    prefix = "chs_";
-                    break;
-                case "4":
-                    prefix = "med_";
-                    break;
-            }
-
-            if (nom && prenom) {
-                const usernameField = document.getElementById('db_username');
-                // On ne génère automatiquement l'username que s'il est vide
-                if (!usernameField.value) {
-                    usernameField.value = prefix + prenom.charAt(0) + nom;
-                }
-
-                const emailField = document.getElementById('email_portail');
-                if (!emailField.value || emailField.value.includes('@LPFclinique8.com')) {
-                    emailField.value = prenom + "." + nom + "@LPFclinique8.com";
-                }
-            }
-            document.getElementById('rightsDesc').innerText = permissionsMap[roleId] || "Veuillez sélectionner un rôle.";
-        }
-
-        // Lancement au chargement de la page pour pré-calculer les descriptions
-        window.onload = updateLogins;
-    </script>
+    <script src="../JAVASCRIPT/add-user.js"></script>
 </body>
 
 </html>
