@@ -8,3 +8,4 @@
 
 *compte Françoise Marquis (Chef de service Radiologie)*: `chs_marquis`, `Fr@ncoiseMQS1995`
 
+*compte Sophie Martin (Praticien Chirurgie)*: `chs_marquis`, `S0phieMRT1997`
