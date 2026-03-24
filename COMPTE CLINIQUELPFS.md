@@ -10,4 +10,6 @@
 
 *compte Hugues Faure (Chef de service Neurologie)*: `chs_hfaure`, `Hugu€sFR1972`
 
+*compte Hugues Faure (Chef de service Chirurgie)*: `chs_acovillon`, `Al€x@ndr!eCVN2002`
+
 *compte Sophie Martin (Praticien Chirurgie)*: `chs_marquis`, `S0phieMRT1997`
