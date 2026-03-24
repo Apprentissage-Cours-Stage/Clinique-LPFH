@@ -68,6 +68,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         case 'administrateur':
                             header('Location: ADMIN/dashboard-admin.php');
                             exit;
+                        case 'praticien':
+                            header('Location: DOCTOR/dashboard-doctor.php');
+                            exit;
+                        case 'chef de service':
+                            header('Location: HEAD/dashboard-head.php');
+                            exit;
                         default:
                             $error = "Rôle non reconnu pour cet espace.";
                     }
