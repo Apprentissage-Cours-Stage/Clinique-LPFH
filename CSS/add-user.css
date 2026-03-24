@@ -41,18 +41,20 @@ body {
     display: flex;
     flex-direction: row;
     width: 100vw;
-    min-height: 100vh;
+    height: 100vh; /* Strictement égal à la hauteur de l'écran */
     background: transparent;
+    overflow: hidden; /* Empêche le conteneur global de défiler */
 }
 
 .main-content {
     flex: 1;
+    height: 100vh; /* Aligné sur le dashboard */
     padding: 30px;
-    /* Correction : Centrage vertical et horizontal */
     display: flex;
     flex-direction: column;
     align-items: center; 
-    justify-content: flex-start; /* Aligné en haut pour laisser le scroll naturel */
+    justify-content: flex-start;
+    overflow-y: auto; /* ICI : Seul le formulaire défile ! */
 }
 
 .main-content h1 {
