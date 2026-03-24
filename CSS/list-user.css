@@ -1,0 +1,159 @@
+/* Styles globaux */
+body {
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: linear-gradient(135deg, #e9f4ff, #ffffff);
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Conteneur principal */
+.dashboard-container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Contenu principal */
+.content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.content h1 {
+    color: #005f99;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e9f4ff;
+    padding-bottom: 8px;
+}
+
+/* Conteneur des cartes */
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+/* Cartes */
+.card {
+    flex: 1 1 250px;
+    max-width: 280px;
+    background: #e9f4ff;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+}
+
+.card-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+}
+
+/* Style des boutons/images */
+.card-actions a {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.card-actions a:hover {
+    transform: scale(1.2);
+    /* Petit effet de zoom au survol */
+}
+
+.card-actions img {
+    width: 20px;
+    /* Ajuste la taille selon tes besoins */
+    height: 20px;
+    cursor: pointer;
+    filter: grayscale(100%);
+    /* Optionnel : en gris par défaut */
+    transition: filter 0.2s;
+}
+
+/* Au survol du lien, on remet la couleur (ou on change le filtre) */
+.card-actions a:hover img {
+    filter: grayscale(0%);
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+}
+
+.card h3 {
+    margin: 0 0 10px;
+    color: #005f99;
+    font-size: 1.1em;
+}
+
+.card p {
+    margin: 6px 0;
+    font-size: 0.95em;
+    color: #333;
+}
+
+/* Pré-admissions terminées */
+.card.finished {
+    background: #f2f2f2;
+    opacity: 0.85;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid transparent;
+}
+
+.alert.success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert.error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card-container {
+        justify-content: center;
+    }
+
+    .card {
+        max-width: 100%;
+    }
+}
+
+/* Petits ajouts spécifiques pour le statut du compte */
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.badge.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.badge.warning {
+    background-color: #f8d7da;
+    color: #721c24;
+}
