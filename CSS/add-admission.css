@@ -136,7 +136,8 @@ body {
     border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 16px;
-    box-sizing: border-box; /* Évite que les inputs dépassent */
+    box-sizing: border-box;
+    /* Évite que les inputs dépassent */
 }
 
 /* Éléments mariés et alignements spéciaux */
@@ -168,7 +169,8 @@ body {
 /* ==========================================
    4. TÉLÉVERSEMENT DE DOCUMENTS ET PREVIEW
    ========================================== */
-.doc-group { /* Correction du point manquant */
+.doc-group {
+    /* Correction du point manquant */
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -225,7 +227,8 @@ button[type="submit"] {
 }
 
 .button-row button {
-    flex: 1; /* Les boutons prennent la même largeur */
+    flex: 1;
+    /* Les boutons prennent la même largeur */
 }
 
 button[type="button"]:hover,
@@ -247,19 +250,20 @@ button[type="submit"]:hover {
 
 /* Renommé en .review-card pour éviter le conflit avec le dashboard */
 .review-card {
-    flex: 1 1 calc(33.333% - 20px); /* 3 colonnes sur PC */
+    flex: 1 1 calc(33.333% - 20px);
+    /* 3 colonnes sur PC */
     min-width: 250px;
     background-color: #fff;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .review-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
 }
 
 .review-card h3 {
@@ -280,11 +284,13 @@ button[type="submit"]:hover {
    ========================================== */
 @media (max-width: 992px) {
     .personnes-wrapper {
-        flex-direction: column; /* Les formulaires passent l'un sous l'autre */
+        flex-direction: column;
+        /* Les formulaires passent l'un sous l'autre */
     }
-    
+
     .review-card {
-        flex: 1 1 calc(50% - 20px); /* 2 colonnes sur tablette */
+        flex: 1 1 calc(50% - 20px);
+        /* 2 colonnes sur tablette */
     }
 }
 
@@ -309,6 +315,7 @@ button[type="submit"]:hover {
     }
 
     .review-card {
-        flex: 1 1 100%; /* 1 colonne sur mobile */
+        flex: 1 1 100%;
+        /* 1 colonne sur mobile */
     }
 }
