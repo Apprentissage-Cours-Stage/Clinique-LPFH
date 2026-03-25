@@ -25,8 +25,8 @@ if (!isset($context)) {
         <?php elseif ($context === "DOCTOR"): ?>
             <li><a href="list-ownadmission.php">Liste de mes pré-admissions</a></li>
         <?php elseif ($context === "HEAD"): ?>
-            <li><a href="#">Liste des pré-admissions de mon service</a></li>
-            <li><a href="#">Liste des employées de mon service</a></li>
+            <li><a href="list-serviceadmission.php">Liste des pré-admissions de mon service</a></li>
+            <li><a href="list-serviceusers.php">Liste des employées de mon service</a></li>
         <?php endif; ?>
         <li><a href="../logout.php">Déconnexion</a></li>
     </ul>
