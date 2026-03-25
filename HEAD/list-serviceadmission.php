@@ -129,7 +129,7 @@ $resultTerminees = mysqli_stmt_get_result($stmtTerminees);
             </form>
 
 
-            <h2>Pré-admissions à venir</h2>
+            <h2>Pré-admissions à venir pour mon service</h2>
             <div class="card-container">
                 <?php if (mysqli_num_rows($resultAVenir) === 0): ?>
                     <p class="no-data">Aucune pré-admission à venir pour ce mois.</p>
@@ -150,7 +150,7 @@ $resultTerminees = mysqli_stmt_get_result($stmtTerminees);
                 <?php endif; ?>
             </div>
 
-            <h2>Pré-admissions terminées</h2>
+            <h2>Pré-admissions terminées de mon service</h2>
             <div class="card-container">
                 <?php if (mysqli_num_rows($resultTerminees) === 0): ?>
                     <p class="no-data">Aucune pré-admission passée trouvée.</p>
