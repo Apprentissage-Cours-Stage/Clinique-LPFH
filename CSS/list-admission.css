@@ -74,14 +74,17 @@ body {
 }
 
 .card-actions a:hover {
-    transform: scale(1.2); /* Petit effet de zoom au survol */
+    transform: scale(1.2);
+    /* Petit effet de zoom au survol */
 }
 
 .card-actions img {
-    width: 20px;  /* Ajuste la taille selon tes besoins */
+    width: 20px;
+    /* Ajuste la taille selon tes besoins */
     height: 20px;
     cursor: pointer;
-    filter: grayscale(100%); /* Optionnel : en gris par défaut */
+    filter: grayscale(100%);
+    /* Optionnel : en gris par défaut */
     transition: filter 0.2s;
 }
 
@@ -117,29 +120,74 @@ body {
    7. BARRE DE FILTRES (HARMONISÉE)
    ========================================== */
 .filter-bar {
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px; /* Aligné sur .form-container */
-    margin-bottom: 30px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Aligné sur .review-card */
-    border: 1px solid #e0e0e0;
     display: flex;
     align-items: center;
     gap: 15px;
+    flex-wrap: wrap;
+    /* Aligne proprement les boutons sur mobile */
+}
+
+.filter-bar .actions-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    /* Pousse l'export à droite sur les grands écrans */
+}
+
+.btn-export-excel {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background-color: #28a745;
+    /* Vert pour Excel */
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: background-color 0.2s, transform 0.1s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-export-excel:hover {
+    background-color: #218838;
+}
+
+.btn-export-excel:active {
+    transform: scale(0.98);
+}
+
+@media (max-width: 768px) {
+    .filter-bar .actions-group {
+        margin-left: 0;
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .btn-export-excel {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 .filter-bar label {
     font-weight: 600;
     color: #333;
-    white-space: nowrap; /* Évite que le texte ne saute à la ligne sur PC */
+    white-space: nowrap;
+    /* Évite que le texte ne saute à la ligne sur PC */
 }
 
 .filter-bar select {
     flex: 1;
     max-width: 300px;
-    padding: 12px; /* Aligné sur les autres inputs */
+    padding: 12px;
+    /* Aligné sur les autres inputs */
     border: 1px solid #ccc;
-    border-radius: 6px; /* Aligné sur le reste du projet */
+    border-radius: 6px;
+    /* Aligné sur le reste du projet */
     font-size: 16px;
     background-color: #fff;
     color: #333;
@@ -149,12 +197,14 @@ body {
 
 .filter-bar select:focus {
     outline: none;
-    border-color: #007bff; /* Bleu standard du projet */
+    border-color: #007bff;
+    /* Bleu standard du projet */
 }
 
 .filter-bar button,
 .filter-bar .reset-btn {
-    padding: 12px 20px; /* Hauteur identique aux champs */
+    padding: 12px 20px;
+    /* Hauteur identique aux champs */
     border-radius: 6px;
     cursor: pointer;
     border: none;
@@ -173,12 +223,14 @@ body {
 }
 
 .filter-bar button:hover {
-    background: #0056b3; /* Survol standard du projet */
+    background: #0056b3;
+    /* Survol standard du projet */
 }
 
 .filter-bar button:active,
 .filter-bar .reset-btn:active {
-    transform: scale(0.98); /* Petit effet d'enfoncement au clic */
+    transform: scale(0.98);
+    /* Petit effet d'enfoncement au clic */
 }
 
 .filter-bar .reset-btn {
@@ -196,12 +248,14 @@ body {
 @media (max-width: 768px) {
     .filter-bar {
         flex-direction: column;
-        align-items: stretch; /* Prend toute la largeur sur mobile */
+        align-items: stretch;
+        /* Prend toute la largeur sur mobile */
         gap: 12px;
     }
 
     .filter-bar select {
-        max-width: 100%; /* S'adapte au mobile */
+        max-width: 100%;
+        /* S'adapte au mobile */
     }
 }
 

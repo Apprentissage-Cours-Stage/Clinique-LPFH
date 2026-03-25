@@ -102,31 +102,37 @@ $resultTerminees = mysqli_stmt_get_result($stmtTerminees);
 
             <h1>Tableau de bord du service</h1>
 
-            <form method="GET" action="" class="filter-bar">
-                <label for="month">Filtrer par mois d'admission :</label>
-                <select name="month" id="month">
-                    <option value="">-- Tous les mois --</option>
-                    <?php
-                    // On génère la liste des 6 derniers mois et des 6 mois à venir
-                    for ($i = -6; $i <= 6; $i++) {
-                        $timestamp = strtotime("$i months");
-                        $val = date('Y-m', $timestamp);
-                        
-                        // Traduction sommaire en français
-                        $txtMonths = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-                        $monthIndex = (int)date('m', $timestamp) - 1;
-                        $formattedText = $txtMonths[$monthIndex] . ' ' . date('Y', $timestamp);
+            <div class="filter-bar">
+                <form method="GET" action="" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; flex: 1;">
+                    <label for="month">Filtrer par mois d'admission :</label>
+                    <select name="month" id="month" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px;">
+                        <option value="">-- Tous les mois --</option>
+                        <?php
+                        for ($i = -6; $i <= 6; $i++) {
+                            $timestamp = strtotime("$i months");
+                            $val = date('Y-m', $timestamp);
+                            
+                            $txtMonths = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+                            $monthIndex = (int)date('m', $timestamp) - 1;
+                            $formattedText = $txtMonths[$monthIndex] . ' ' . date('Y', $timestamp);
 
-                        $selected = ($val === $selectedMonth) ? 'selected' : '';
-                        echo "<option value=\"$val\" $selected>$formattedText</option>";
-                    }
-                    ?>
-                </select>
-                <button type="submit">Filtrer</button>
-                <?php if (!empty($selectedMonth)): ?>
-                    <a href="?" class="reset-btn">❌ Réinitialiser</a>
-                <?php endif; ?>
-            </form>
+                            $selected = ($val === $selectedMonth) ? 'selected' : '';
+                            echo "<option value=\"$val\" $selected>$formattedText</option>";
+                        }
+                        ?>
+                    </select>
+                    <button type="submit">Filtrer</button>
+                    <?php if (!empty($selectedMonth)): ?>
+                        <a href="?" class="reset-btn">❌ Réinitialiser</a>
+                    <?php endif; ?>
+                </form>
+
+                <div class="actions-group">
+                    <a href="../INCLUDES/exportExcel.php<?= !empty($selectedMonth) ? '?month=' . urlencode($selectedMonth) : '' ?>" class="btn-export-excel">
+                        📊 Exporter le planning Excel
+                    </a>
+                </div>
+            </div>
 
 
             <h2>Pré-admissions à venir pour mon service</h2>
