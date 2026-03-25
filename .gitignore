@@ -1,0 +1,58 @@
+# ==========================================
+# 1. Fichiers de Configuration Sensibles (BDD, etc.)
+# ==========================================
+# Contient tes mots de passe réels. Ne jamais le push !
+config.php
+env.php
+.env
+
+# ==========================================
+# 2. Uploads et Fichiers générés par les utilisateurs
+# ==========================================
+# Si tu stockes les pièces d'identité / mutuelles reçues par le formulaire :
+uploads/
+documents/
+!uploads/.gitkeep
+
+# ==========================================
+# 3. Dépendances (si tu utilises Composer ou NPM)
+# ==========================================
+vendor/
+node_modules/
+
+# ==========================================
+# 4. Fichiers OS / Environnement système
+# ==========================================
+# Windows
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# ==========================================
+# 5. IDEs et Éditeurs de texte (Fichiers locaux)
+# ==========================================
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# PHPStorm / WebStorm
+.idea/
+
+# SublimeText
+*.sublime-project
+*.sublime-workspace
+
+# Bloc-notes / Logs
+*.log
