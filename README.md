@@ -149,27 +149,10 @@ Voici le cheminement fonctionnel d'un dossier dans l'application :
 
 ---
 
-## ⚙️ Installation & Déploiement
-
-### Pré-requis
-- Un serveur web local : **Laragon / XAMPP / WAMP / MAMP** (PHP >= 8.0 et MySQL).
-- **Composer** installé sur la machine.
-
-### Procédure
-1. **Cloner le projet** dans votre répertoire web local (ex: `/www` ou `/htdocs`).
-2. Installer les dépendances via le terminal à la racine du projet :
-   ```bash
-   composer install
-   ```
-3. Importer la base de données MySQL à l'aide du fichier `.sql` fourni (via phpMyAdmin ou votre CLI préféré).
-4. Configurer les accès à votre BDD dans le fichier `INCLUDES/db.php`.
-5. Lancez votre serveur local et accédez au projet via votre navigateur (ex: `http://localhost/CLINIQUE_LPFS`).
-
----
-
 ## 🔒 Sécurité appliquée
 
 - **🔒 Requêtes préparées :** Utilisation systématique de `mysqli_prepare` et `mysqli_bind_param` sur l'ensemble des requêtes pour éliminer nativement tout risque d'injection SQL.
 - **🛡️ Protection XSS :** Filtrage rigoureux des sorties HTML à l'aide de la fonction native `htmlspecialchars()`.
 - **🔑 Contrôle d'accès & cloisonnement (RBAC) :** Les variables de session (`$_SESSION['user_id']`) et les rôles (`$context`) sont vérifiés au chargement de chaque page. Un utilisateur ne peut pas accéder aux dossiers (`/ADMIN`, `/HEAD`, etc.) s'il n'a pas les autorisations requises.
 - **👁️ Variables masquées (RGPD) :** Les dossiers de téléversements réels et les librairies lourdes sont indexés dans le `.gitignore` pour éviter toute fuite accidentelle sur les dépôts de code centralisés (GitHub/GitLab).
+- **👤 Authentification Nominative & Traçabilité :** Chaque employé possède ses propres identifiants d'accès. Le système bannit les comptes génériques partagés. Cela garantit l'imputabilité des actions (Secret Médical) et facilite la révocation des accès en cas de départ d'un agent.
