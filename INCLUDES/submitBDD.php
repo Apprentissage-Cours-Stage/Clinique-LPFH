@@ -27,76 +27,128 @@ if ($step === 0) {
     exit;
 }
 
-$stmt = null; 
+$stmt = null;
 
 switch ($step) {
     case 2:
         $p = $data['data'] ?? [];
         try {
-            // --- 1. INSERTION OU MISE À JOUR PATIENT ---
-            $sqlPatient = "INSERT INTO Patient 
-                (Num_SecuSocial_Patient, Civilité_Patient, Nom_Naissance, Nom_Epouse, Prénom_Patient, Date_Naissance, Num_Adresse, Rue_Adresse, Code_Postal, Ville_Adresse, Adresse_Mail, Telephone_Patient) 
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
-                ON DUPLICATE KEY UPDATE Nom_Epouse=VALUES(Nom_Epouse), Telephone_Patient=VALUES(Telephone_Patient), Adresse_Mail=VALUES(Adresse_Mail)";
+            $secuSocial = $p['numSecuSocial'];
 
-            if (!($stmt = $conn->prepare($sqlPatient))) {
-                echo json_encode(['success' => false, 'message' => 'Erreur de préparation Patient : ' . $conn->error]);
-                exit;
+            // 🔍 --- 1. VÉRIFIER SI LE PATIENT EXISTE DÉJÀ ---
+            $sqlCheckPatient = "SELECT Num_SecuSocial_Patient FROM Patient WHERE Num_SecuSocial_Patient = ? LIMIT 1";
+            $stmtCheckPatient = $conn->prepare($sqlCheckPatient);
+            $stmtCheckPatient->bind_param('s', $secuSocial);
+            $stmtCheckPatient->execute();
+            $stmtCheckPatient->store_result();
+
+            if ($stmtCheckPatient->num_rows === 0) {
+                // Le patient n'existe pas, on le crée
+                $stmtCheckPatient->close();
+
+                $sqlPatient = "INSERT INTO Patient 
+                    (Num_SecuSocial_Patient, Civilité_Patient, Nom_Naissance, Nom_Epouse, Prénom_Patient, Date_Naissance, Num_Adresse, Rue_Adresse, Code_Postal, Ville_Adresse, Adresse_Mail, Telephone_Patient) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+                if (!($stmt = $conn->prepare($sqlPatient))) {
+                    echo json_encode(['success' => false, 'message' => 'Erreur de préparation Patient : ' . $conn->error]);
+                    exit;
+                }
+
+                $civilité = (int)$p['civilité'];
+                $stmt->bind_param(
+                    'sissssisssss',
+                    $secuSocial,
+                    $civilité,
+                    $p['nomNaissance'],
+                    $p['nomEpouse'],
+                    $p['prenom'],
+                    $p['datenaissance'],
+                    $p['numAddresse'],
+                    $p['rueAddresse'],
+                    $p['cp'],
+                    $p['ville'],
+                    $p['mail'],
+                    $p['telephone']
+                );
+
+                if (!$stmt->execute()) {
+                    echo json_encode(['success' => false, 'message' => 'Erreur d\'exécution Patient : ' . $stmt->error]);
+                    exit;
+                }
+                $stmt->close();
+            } else {
+                $stmtCheckPatient->close();
             }
 
-            $civilité = (int)$p['civilité'];
-            $stmt->bind_param(
-                'sissssisssss',
-                $p['numSecuSocial'],
-                $civilité,
-                $p['nomNaissance'],
-                $p['nomEpouse'],
-                $p['prenom'],
-                $p['datenaissance'],
-                $p['numAddresse'],
-                $p['rueAddresse'],
-                $p['cp'],
-                $p['ville'],
-                $p['mail'],
-                $p['telephone']
-            );
+            // 🔍 --- 2. VÉRIFIER SI LA COUVERTURE SOCIALE EXISTE ET EST EXACTEMENT LA MÊME ---
+            $sqlCheckCouverture = "SELECT Numero_Sec_Social FROM CouvertureSocial 
+                                   WHERE Numero_Sec_Social = ? 
+                                   AND Nom_OrganismeSecuSocial = ? 
+                                   AND Patient_Assuré = ? 
+                                   AND Patient_ADL = ? 
+                                   AND Nom_Mutuelle = ? 
+                                   AND Numéro_Adhérent = ? 
+                                   LIMIT 1";
 
-            if (!$stmt->execute()) {
-                echo json_encode(['success' => false, 'message' => 'Erreur d\'exécution Patient : ' . $stmt->error]);
-                exit;
-            }
-            $stmt->close();
-
-            // --- 2. INSERTION COUVERTURE SOCIALE ---
-            $sqlCouverture = "INSERT INTO CouvertureSocial 
-                (Numero_Sec_Social, Nom_OrganismeSecuSocial, Patient_Assuré, Patient_ADL, Nom_Mutuelle, Numéro_Adhérent) 
-                VALUES (?, ?, ?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE Nom_Mutuelle=VALUES(Nom_Mutuelle), Numéro_Adhérent=VALUES(Numéro_Adhérent)";
-
-            if (!($stmt = $conn->prepare($sqlCouverture))) {
-                echo json_encode(['success' => false, 'message' => 'Erreur de préparation Couverture : ' . $conn->error]);
-                exit;
-            }
-
+            $stmtCheckCouv = $conn->prepare($sqlCheckCouverture);
             $ADL = (int)$p['isADL'];
             $Assure = (int)$p['isAssure'];
-            $stmt->bind_param(
+
+            $stmtCheckCouv->bind_param(
                 'ssiiss',
-                $p['numSecuSocial'],
+                $secuSocial,
                 $p['nomOrgaSocial'],
                 $Assure,
                 $ADL,
                 $p['nomMutuelle'],
                 $p['numAdherent']
             );
+            $stmtCheckCouv->execute();
+            $stmtCheckCouv->store_result();
 
-            if ($stmt->execute()) {
-                $_SESSION['NumSecu'] = $p['numSecuSocial'];
-                echo json_encode(['success' => true]);
+            if ($stmtCheckCouv->num_rows === 0) {
+                // Elle n'existe pas ou elle est différente, on l'insère / la met à jour
+                $stmtCheckCouv->close();
+
+                $sqlCouverture = "INSERT INTO CouvertureSocial 
+                    (Numero_Sec_Social, Nom_OrganismeSecuSocial, Patient_Assuré, Patient_ADL, Nom_Mutuelle, Numéro_Adhérent) 
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE 
+                        Nom_OrganismeSecuSocial=VALUES(Nom_OrganismeSecuSocial),
+                        Patient_Assuré=VALUES(Patient_Assuré),
+                        Patient_ADL=VALUES(Patient_ADL),
+                        Nom_Mutuelle=VALUES(Nom_Mutuelle), 
+                        Numéro_Adhérent=VALUES(Numéro_Adhérent)";
+
+                if (!($stmt = $conn->prepare($sqlCouverture))) {
+                    echo json_encode(['success' => false, 'message' => 'Erreur de préparation Couverture : ' . $conn->error]);
+                    exit;
+                }
+
+                $stmt->bind_param(
+                    'ssiiss',
+                    $secuSocial,
+                    $p['nomOrgaSocial'],
+                    $Assure,
+                    $ADL,
+                    $p['nomMutuelle'],
+                    $p['numAdherent']
+                );
+
+                if (!$stmt->execute()) {
+                    echo json_encode(['success' => false, 'message' => 'Erreur d\'exécution Couverture : ' . $stmt->error]);
+                    exit;
+                }
+                $stmt->close();
             } else {
-                echo json_encode(['success' => false, 'message' => 'Erreur d\'exécution Couverture : ' . $stmt->error]);
+                // Déjà identique en BDD, on n'altère rien
+                $stmtCheckCouv->close();
             }
-            $stmt->close();
+
+            // On met le Numéro en session et on valide l'étape
+            $_SESSION['NumSecu'] = $secuSocial;
+            echo json_encode(['success' => true]);
             exit;
 
         } catch (Exception $e) {
@@ -104,7 +156,6 @@ switch ($step) {
             exit;
         }
         break;
-
     case 3:
         $p = $data['data'] ?? [];
         try {
@@ -120,23 +171,47 @@ switch ($step) {
             }
 
             $TypeHospi = (int)$p['TypeHospi'];
-            $Chambre = (int)$p['Chambre']; // Conversion forcée en entier (ID)
+            $Chambre = (int)$p['Chambre'];
             $Medecin = (int)$p['Medecin'];
+            $DateHospi = $p['DateHospi'];
+            $HeureHospi = $p['HeureHospi'];
 
-            // 🎯 VERIFICATION SÉCURISÉE : La chambre existe-t-elle vraiment dans la table 'chambre' ?
+            // 🎯 1. VERIFICATION : La chambre existe-t-elle ?
             $checkChambre = $conn->prepare("SELECT NumeroChambre FROM chambre WHERE NumeroChambre = ?");
             $checkChambre->bind_param("i", $Chambre);
             $checkChambre->execute();
             $checkChambre->store_result();
 
             if ($checkChambre->num_rows === 0) {
-                echo json_encode(['success' => false, 'message' => "La chambre ID [ $Chambre ] n'existe pas en BDD."]);
+                echo json_encode(['success' => false, 'message' => "La chambre ID [ $Chambre ] n'existe pas."]);
                 $checkChambre->close();
                 exit;
             }
             $checkChambre->close();
 
-            // --- INSERTION HOSPITALISATION ---
+            // 🎯 2. VERIFICATION : Le médecin ou la chambre sont-ils déjà occupés à cette date/heure ?
+            // On utilise COUNT(1) et des requêtes préparées pour la sécurité et la performance
+            $sqlCheckDispo = "SELECT COUNT(1) FROM Hospitalisation 
+                              WHERE Date_Hospitalisation = ? 
+                              AND Heure_Hospitalisation = ? 
+                              AND (ChambreOccupé = ? OR Medecin_En_Charge = ?)";
+
+            $checkDispo = $conn->prepare($sqlCheckDispo);
+            $checkDispo->bind_param("ssii", $DateHospi, $HeureHospi, $Chambre, $Medecin);
+            $checkDispo->execute();
+            $checkDispo->bind_result($occupeCount);
+            $checkDispo->fetch();
+            $checkDispo->close();
+
+            if ($occupeCount > 0) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Indisponibilité : La chambre ou le médecin est déjà réservé pour ce créneau (Date et Heure).'
+                ]);
+                exit;
+            }
+
+            // --- 3. INSERTION HOSPITALISATION ---
             $sqlHospi = "INSERT INTO Hospitalisation 
                 (Date_Hospitalisation, Heure_Hospitalisation, TypeHospitalisation, ChambreOccupé, Medecin_En_Charge, ID_Patient) 
                 VALUES (?, ?, ?, ?, ?, ?)";
@@ -148,8 +223,8 @@ switch ($step) {
 
             $stmt->bind_param(
                 'ssiiis',
-                $p['DateHospi'],
-                $p['HeureHospi'],
+                $DateHospi,
+                $HeureHospi,
                 $TypeHospi,
                 $Chambre,
                 $Medecin,
@@ -164,7 +239,6 @@ switch ($step) {
             }
             $stmt->close();
             exit;
-
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => 'Erreur du serveur (Etape 3) : ' . $e->getMessage()]);
             exit;
@@ -182,19 +256,47 @@ switch ($step) {
                 echo json_encode(['success' => false, 'message' => 'Patient manquant en session.']);
                 exit;
             }
+            $NumSecuPatient = $_SESSION['NumSecu'];
 
-            // --- 1. PERSONNE À PRÉVENIR ---
-            $sqlPP = "INSERT INTO Personne_Prevenir 
-                (Nom_Pers, Prénom_Pers, Telephone_Pers, Num_Adresse, Rue_Adresse, Ville_Adresse, Code_Postal_Pers) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)";
+            // --- FONCTION UTILITAIRE POUR ÉVITER LES DOUBLONS DE PERSONNES ---
+            // Recherche si quelqu'un a exactement le même Nom, Prénom et Téléphone
+            function obtenirOuCreerPersonne($conn, $nom, $prenom, $tel, $numAdd, $rue, $ville, $cp) {
+                $idExistant = null;
+                $sqlCheck = "SELECT ID_Personne_Prevenir FROM Personne_Prevenir 
+                             WHERE Nom_Pers = ? AND Prénom_Pers = ? AND Telephone_Pers = ? LIMIT 1";
+                
+                $stmtCheck = $conn->prepare($sqlCheck);
+                $stmtCheck->bind_param('sss', $nom, $prenom, $tel);
+                $stmtCheck->execute();
+                $stmtCheck->store_result();
 
-            if (!($stmt = $conn->prepare($sqlPP))) {
-                echo json_encode(['success' => false, 'message' => 'Erreur préparation PP : ' . $conn->error]);
-                exit;
+                if ($stmtCheck->num_rows > 0) {
+                    $stmtCheck->bind_result($idExistant);
+                    $stmtCheck->fetch();
+                    $stmtCheck->close();
+                    return $idExistant; // On a trouvé un doublon, on renvoie son ID
+                }
+                $stmtCheck->close();
+
+                // Sinon, création d'une nouvelle entrée
+                $sqlInsert = "INSERT INTO Personne_Prevenir 
+                    (Nom_Pers, Prénom_Pers, Telephone_Pers, Num_Adresse, Rue_Adresse, Ville_Adresse, Code_Postal_Pers) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+                $stmtInsert = $conn->prepare($sqlInsert);
+                $stmtInsert->bind_param('ssssssi', $nom, $prenom, $tel, $numAdd, $rue, $ville, $cp);
+                
+                if (!$stmtInsert->execute()) {
+                    throw new Exception("Erreur lors de l'insertion de la personne.");
+                }
+                $newId = $conn->insert_id;
+                $stmtInsert->close();
+                return $newId;
             }
 
-            $stmt->bind_param(
-                'ssssssi',
+            // --- 1. PERSONNE À PRÉVENIR ---
+            $_SESSION['ID_Personne_Prevenir'] = obtenirOuCreerPersonne(
+                $conn,
                 $personneAprevenir['Nom'],
                 $personneAprevenir['Prenom'],
                 $personneAprevenir['Telephone'],
@@ -204,22 +306,10 @@ switch ($step) {
                 $personneAprevenir['CP']
             );
 
-            if (!$stmt->execute()) {
-                echo json_encode(['success' => false, 'message' => 'Erreur exécution PP : ' . $stmt->error]);
-                exit;
-            }
-            $_SESSION['ID_Personne_Prevenir'] = $conn->insert_id;
-            $stmt->close();
-
             // --- 2. PERSONNE DE CONFIANCE ---
             if ($personneDeConfiance !== null && !empty($personneDeConfiance['Nom'])) {
-                if (!($stmt = $conn->prepare($sqlPP))) {
-                    echo json_encode(['success' => false, 'message' => 'Erreur préparation PC : ' . $conn->error]);
-                    exit;
-                }
-
-                $stmt->bind_param(
-                    'ssssssi',
+                $_SESSION['ID_Personne_Confiance'] = obtenirOuCreerPersonne(
+                    $conn,
                     $personneDeConfiance['Nom'],
                     $personneDeConfiance['Prenom'],
                     $personneDeConfiance['Telephone'],
@@ -228,56 +318,81 @@ switch ($step) {
                     $personneDeConfiance['Ville'],
                     $personneDeConfiance['CP']
                 );
-
-                if (!$stmt->execute()) {
-                    echo json_encode(['success' => false, 'message' => 'Erreur exécution PC : ' . $stmt->error]);
-                    exit;
-                }
-                $_SESSION['ID_Personne_Confiance'] = $conn->insert_id;
-                $stmt->close();
             } else {
                 $_SESSION['ID_Personne_Confiance'] = $_SESSION['ID_Personne_Prevenir'];
             }
 
             // --- 3. RESPONSABLE LÉGAL ---
             if ($responsableLegal !== null && !empty($responsableLegal['Nom'])) {
-                $sqlResp = "INSERT INTO Responsable 
-                    (Nom_Responsable, Prenom_Responsable, Telephone_Responsable, AdresseMail_Responsable, Num_Adresse_Responsable, Rue_Responsable, Ville_Responsable, Code_Postal_Responsable) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                
+                // Vérifier si le responsable légal exact existe déjà (par Nom, Prénom, Téléphone)
+                $sqlCheckResp = "SELECT ID_Responsable FROM Responsable 
+                                 WHERE Nom_Responsable = ? AND Prenom_Responsable = ? AND Telephone_Responsable = ? LIMIT 1";
+                
+                $stmtCheckResp = $conn->prepare($sqlCheckResp);
+                $stmtCheckResp->bind_param('sss', $responsableLegal['Nom'], $responsableLegal['Prenom'], $responsableLegal['Telephone']);
+                $stmtCheckResp->execute();
+                $stmtCheckResp->store_result();
 
-                if (!($stmt = $conn->prepare($sqlResp))) {
-                    echo json_encode(['success' => false, 'message' => 'Erreur préparation RESP : ' . $conn->error]);
-                    exit;
+                if ($stmtCheckResp->num_rows > 0) {
+                    $stmtCheckResp->bind_result($ID_RESP);
+                    $stmtCheckResp->fetch();
+                    $stmtCheckResp->close();
+                } else {
+                    $stmtCheckResp->close();
+
+                    $sqlInsertResp = "INSERT INTO Responsable 
+                        (Nom_Responsable, Prenom_Responsable, Telephone_Responsable, AdresseMail_Responsable, Num_Adresse_Responsable, Rue_Responsable, Ville_Responsable, Code_Postal_Responsable) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+                    if (!($stmt = $conn->prepare($sqlInsertResp))) {
+                        echo json_encode(['success' => false, 'message' => 'Erreur préparation RESP : ' . $conn->error]);
+                        exit;
+                    }
+
+                    $stmt->bind_param(
+                        'sssssiss',
+                        $responsableLegal['Nom'],
+                        $responsableLegal['Prenom'],
+                        $responsableLegal['Telephone'],
+                        $responsableLegal['Mail'],
+                        $responsableLegal['NumAdresse'],
+                        $responsableLegal['RueAdresse'],
+                        $responsableLegal['Ville'],
+                        $responsableLegal['CP']
+                    );
+
+                    if (!$stmt->execute()) {
+                        echo json_encode(['success' => false, 'message' => 'Erreur exécution RESP : ' . $stmt->error]);
+                        exit;
+                    }
+                    $ID_RESP = $conn->insert_id;
+                    $stmt->close();
                 }
 
-                $stmt->bind_param(
-                    'sssssiss',
-                    $responsableLegal['Nom'],
-                    $responsableLegal['Prenom'],
-                    $responsableLegal['Telephone'],
-                    $responsableLegal['Mail'],
-                    $responsableLegal['NumAdresse'],
-                    $responsableLegal['RueAdresse'],
-                    $responsableLegal['Ville'],
-                    $responsableLegal['CP']
-                );
+                // Liaison Responsable <-> Patient (SousTutelleDe)
+                // Vérifier d'abord si la liaison existe déjà
+                $sqlCheckTutelle = "SELECT 1 FROM SousTutelleDe WHERE ID_Responsable = ? AND ID_Patient = ? LIMIT 1";
+                $stmtCheckTutelle = $conn->prepare($sqlCheckTutelle);
+                $stmtCheckTutelle->bind_param('is', $ID_RESP, $NumSecuPatient);
+                $stmtCheckTutelle->execute();
+                $stmtCheckTutelle->store_result();
 
-                if (!$stmt->execute()) {
-                    echo json_encode(['success' => false, 'message' => 'Erreur exécution RESP : ' . $stmt->error]);
-                    exit;
+                if ($stmtCheckTutelle->num_rows === 0) {
+                    $stmtCheckTutelle->close();
+
+                    $sqlTutelle = "INSERT INTO SousTutelleDe (ID_Responsable, ID_Patient) VALUES (?, ?)";
+                    if (!($stmt = $conn->prepare($sqlTutelle))) {
+                        echo json_encode(['success' => false, 'message' => 'Erreur préparation Tutelle : ' . $conn->error]);
+                        exit;
+                    }
+
+                    $stmt->bind_param('is', $ID_RESP, $NumSecuPatient);
+                    $stmt->execute();
+                    $stmt->close();
+                } else {
+                    $stmtCheckTutelle->close();
                 }
-                $ID_RESP = $conn->insert_id;
-                $stmt->close();
-
-                $sqlTutelle = "INSERT INTO SousTutelleDe (ID_Responsable, ID_Patient) VALUES (?, ?)";
-                if (!($stmt = $conn->prepare($sqlTutelle))) {
-                    echo json_encode(['success' => false, 'message' => 'Erreur préparation Tutelle : ' . $conn->error]);
-                    exit;
-                }
-
-                $stmt->bind_param('is', $ID_RESP, $_SESSION['NumSecu']);
-                $stmt->execute();
-                $stmt->close();
             }
 
             echo json_encode(['success' => true]);
@@ -288,7 +403,6 @@ switch ($step) {
             exit;
         }
         break;
-
     case 5:
         if (!isset($_SESSION['NumSecu'])) {
             echo json_encode(['success' => false, 'message' => 'Patient manquant en session.']);
@@ -297,7 +411,13 @@ switch ($step) {
         $NumSecuPatient = $_SESSION['NumSecu'];
 
         $colonnesBDD = [
-            'Numéro_SecSocial_Document', 'Carte_Identité', 'Carte_Vitale', 'Carte_mutuelle', 'Livret_Famille', 'Autorisation_soin', 'Decision_juge'
+            'Numéro_SecSocial_Document',
+            'Carte_Identité',
+            'Carte_Vitale',
+            'Carte_mutuelle',
+            'Livret_Famille',
+            'Autorisation_soin',
+            'Decision_juge'
         ];
 
         $fieldMapping = [
@@ -321,13 +441,13 @@ switch ($step) {
                 exit;
             }
 
-            $null = null; 
+            $null = null;
             $stmt->bind_param('sbbbbbb', $NumSecuPatient, $null, $null, $null, $null, $null, $null);
 
             foreach ($_FILES as $fieldName => $file) {
                 if (isset($fieldMapping[$fieldName]) && $file['error'] === UPLOAD_ERR_OK) {
                     $index = $fieldMapping[$fieldName];
-                    
+
                     $fp = fopen($file['tmp_name'], "r");
                     while (!feof($fp)) {
                         $stmt->send_long_data($index, fread($fp, 8192));
@@ -373,7 +493,6 @@ switch ($step) {
 
             echo json_encode(['success' => true, 'message' => 'Pré-admission enregistrée avec succès !']);
             exit;
-
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => 'Erreur du serveur (Etape 5) : ' . $e->getMessage()]);
             exit;
