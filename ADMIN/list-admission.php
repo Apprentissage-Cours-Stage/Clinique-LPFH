@@ -15,7 +15,7 @@ require_once "../INCLUDES/db.php";
 $today = date('Y-m-d');
 
 /* Pré-admissions à venir */
-$sqlAVenir = "SELECT c.Libellé_Civilité, p.Nom_Naissance, 
+$sqlAVenir = "SELECT p.Num_SecuSocial_Patient, c.Libellé_Civilité, p.Nom_Naissance, 
                     p.Nom_Epouse, h.Date_Hospitalisation, h.Heure_Hospitalisation, 
                     ht.Libellé_TypeHospitalisation, prs.Nom_Personnel 
               FROM preadmission pa
@@ -33,7 +33,7 @@ mysqli_stmt_execute($stmtAVenir);
 $resultAVenir = mysqli_stmt_get_result($stmtAVenir);
 
 /* Pré-admissions terminées */
-$sqlTerminees = "SELECT c.Libellé_Civilité, p.Nom_Naissance, 
+$sqlTerminees = "SELECT p.Num_SecuSocial_Patient, c.Libellé_Civilité, p.Nom_Naissance, 
                     p.Nom_Epouse, h.Date_Hospitalisation, h.Heure_Hospitalisation, 
                     ht.Libellé_TypeHospitalisation, prs.Nom_Personnel 
                  FROM preadmission pa
@@ -70,6 +70,11 @@ $resultTerminees = mysqli_stmt_get_result($stmtTerminees);
             <div class="card-container">
                 <?php while ($p = mysqli_fetch_assoc($resultAVenir)): ?>
                     <div class="card">
+                        <div class="card-actions">
+                            <a href="../INCLUDES/generatePDF.php?id=<?= urlencode($p['Num_SecuSocial_Patient']) ?>" title="Exporter en PDF" target="_blank">
+                                <img src="../INCLUDES/ICONS/export.png" alt="PDF">
+                            </a>
+                        </div>
                         <h3><?= htmlspecialchars($p['Libellé_Civilité']) ?> <?= htmlspecialchars(!empty($p['Nom_Epouse']) ? $p['Nom_Epouse'] : $p['Nom_Naissance']) ?></h3>
                         <p><strong>Date et Heure de l'hospitalisation :</strong> <?= $p['Date_Hospitalisation'] ?> - <?= $p['Heure_Hospitalisation'] ?></p>
                         <p><strong>Type d'hospitalisation :</strong> <?= htmlspecialchars($p['Libellé_TypeHospitalisation']) ?></p>
@@ -92,4 +97,5 @@ $resultTerminees = mysqli_stmt_get_result($stmtTerminees);
         </div>
     </div>
 </body>
+
 </html>

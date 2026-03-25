@@ -15,7 +15,7 @@ require_once "../INCLUDES/db.php";
 $today = date('Y-m-d');
 
 /* Pré-admissions à venir */
-$sqlAVenir = "SELECT c.Libellé_Civilité, p.Nom_Naissance, 
+$sqlAVenir = "SELECT p.Num_SecuSocial_Patient, c.Libellé_Civilité, p.Nom_Naissance, 
                     p.Nom_Epouse, h.Date_Hospitalisation, h.Heure_Hospitalisation, 
                     ht.Libellé_TypeHospitalisation, prs.Nom_Personnel 
               FROM preadmission pa
@@ -33,7 +33,7 @@ mysqli_stmt_execute($stmtAVenir);
 $resultAVenir = mysqli_stmt_get_result($stmtAVenir);
 
 /* Pré-admissions terminées */
-$sqlTerminees = "SELECT c.Libellé_Civilité, p.Nom_Naissance, 
+$sqlTerminees = "SELECT p.Num_SecuSocial_Patient, c.Libellé_Civilité, p.Nom_Naissance, 
                     p.Nom_Epouse, h.Date_Hospitalisation, h.Heure_Hospitalisation, 
                     ht.Libellé_TypeHospitalisation, prs.Nom_Personnel 
                  FROM preadmission pa

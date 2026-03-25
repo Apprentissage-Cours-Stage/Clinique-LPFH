@@ -76,7 +76,7 @@ $resultTerminees = mysqli_stmt_get_result($stmtTerminees);
                     <?php while ($p = mysqli_fetch_assoc($resultAVenir)): ?>
                         <div class="card">
                             <div class="card-actions">
-                                <a href="generer_pdf.php?id=<?= urlencode($p['Num_SecuSocial_Patient']) ?>" title="Exporter en PDF" target="_blank">
+                                <a href="../INCLUDES/generatePDF.php?id=<?= urlencode($p['Num_SecuSocial_Patient']) ?>" title="Exporter en PDF" target="_blank">
                                     <img src="../INCLUDES/ICONS/export.png" alt="PDF">
                                 </a>
                             </div>
