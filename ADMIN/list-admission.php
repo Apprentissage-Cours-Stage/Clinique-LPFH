@@ -7,8 +7,8 @@ if (!isset($_SESSION['user_id'])) {
 
 
 $basePath = "../";
-$context = "SECRETARY";
-$shownContext = "Secrétaire";
+$context = "ADMIN";
+$shownContext = "Administrateur";
 
 require_once "../INCLUDES/db.php";
 
