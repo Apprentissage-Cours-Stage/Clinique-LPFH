@@ -5,16 +5,30 @@ require_once "../INCLUDES/db.php";
 $id_pa = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 // Requête exhaustive avec noms de tables et colonnes en minuscules
-$sql = "SELECT pa.*, p.*, h.*, cs.*, pp.*, rp.*, pj.*
-        FROM preadmission pa
-        JOIN patient p ON pa.patient_preadmi = p.num_secusocial_patient
-        JOIN hospitalisation h ON pa.hospitalisation_preadmi = h.id_hospitalisation
-        LEFT JOIN couverturesocial cs ON p.num_secusocial_patient = cs.numero_sec_social
-        LEFT JOIN personne_prevenir pp ON pa.personne_aprev = pp.id_personne
-        LEFT JOIN soustutellede st ON p.num_secusocial_patient = st.id_patient
-        LEFT JOIN responsable rp ON st.id_responsable = rp.id_responsable
-        LEFT JOIN piecesjoints pj ON p.num_secusocial_patient = pj.numero_secsocial_document
-        WHERE pa.id_preadmin = ?";
+$sql = "SELECT 
+    pa.*, 
+    p.*, 
+    h.*, 
+    cs.*, 
+    pp.*, 
+    rp.*, 
+    pj.*
+FROM preadmission pa
+JOIN patient p 
+    ON pa.Patient_PreAdmi = p.Num_SecuSocial_Patient
+JOIN hospitalisation h 
+    ON pa.Hospitalisation_PreAdmi = h.ID_Hospitalisation
+LEFT JOIN couverturesocial cs 
+    ON p.Num_SecuSocial_Patient = cs.Numero_Sec_Social
+LEFT JOIN personne_prevenir pp 
+    ON pa.Personne_aprev = pp.ID_Personne
+LEFT JOIN soustutellede st 
+    ON p.Num_SecuSocial_Patient = st.ID_Patient
+LEFT JOIN responsable rp 
+    ON st.ID_Responsable = rp.ID_Responsable
+LEFT JOIN piecesjoints pj 
+    ON p.Num_SecuSocial_Patient = pj.Numéro_SecSocial_Document
+WHERE pa.Id_PreAdmin = ?;";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $id_pa);
@@ -26,19 +40,55 @@ if (!$data) die("Erreur : Admission introuvable.");
 
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <title>Modifier Dossier : <?php echo htmlspecialchars($data['nom_naissance']); ?></title>
     <link rel="stylesheet" href="../CSS/dashboard.css">
     <link rel="stylesheet" href="../INCLUDES/CSS/header.css">
     <style>
-        .form-card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 5px solid #005f99; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
-        input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn-save { background: #005f99; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; margin-top: 10px; font-weight: bold; }
+        .form-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #005f99;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .btn-save {
+            background: #005f99;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
+
 <body>
     <div class="main-content">
         <h1>Dossier Patient : <?php echo htmlspecialchars($data['nom_naissance'] . " " . $data['prenom_patient']); ?></h1>
@@ -111,4 +161,5 @@ if (!$data) die("Erreur : Admission introuvable.");
         </div>
     </div>
 </body>
+
 </html>
