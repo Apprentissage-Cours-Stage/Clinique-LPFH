@@ -89,7 +89,7 @@ if (!empty($data['Date_Naissance'])) {
             <div class="form-card">
                 <h3><span class="icon">👤</span> État Civil & Coordonnées</h3>
                 <form action="../INCLUDES/updateAdmission.php" method="POST">
-                    <input type="hidden" name="from" value="SECRETARY">
+                    <input type="hidden" name="from" value="ADMIN">
                     <input type="hidden" name="type" value="patient">
                     <input type="hidden" name="id_pa" value="<?php echo $id_pa; ?>">
                     <input type="hidden" name="pk" value="<?php echo $data['Num_SecuSocial_Patient']; ?>">
@@ -144,7 +144,7 @@ if (!empty($data['Date_Naissance'])) {
             <div class="form-card">
                 <h3><span class="icon">🏥</span> Détails de l'Hospitalisation</h3>
                 <form action="../INCLUDES/updateAdmission.php" method="POST">
-                    <input type="hidden" name="from" value="SECRETARY">
+                    <input type="hidden" name="from" value="ADMIN">
                     <input type="hidden" name="type" value="hospitalisation">
                     <input type="hidden" name="id_pa" value="<?php echo $id_pa; ?>">
                     <input type="hidden" name="pk" value="<?php echo $data['ID_Hospitalisation']; ?>">
@@ -184,7 +184,7 @@ if (!empty($data['Date_Naissance'])) {
             <div class="form-card">
                 <h3><span class="icon">💳</span> Couverture Sociale</h3>
                 <form action="../INCLUDES/updateAdmission.php" method="POST">
-                    <input type="hidden" name="from" value="SECRETARY">
+                    <input type="hidden" name="from" value="ADMIN">
                     <input type="hidden" name="type" value="couverture">
                     <input type="hidden" name="id_pa" value="<?php echo $id_pa; ?>">
                     <input type="hidden" name="pk" value="<?php echo $data['Num_SecuSocial_Patient']; ?>">
@@ -227,7 +227,7 @@ if (!empty($data['Date_Naissance'])) {
             <div class="form-card">
                 <h3><span class="icon">👥</span> Entourage & Responsables</h3>
                 <form action="../INCLUDES/updateAdmission.php" method="POST">
-                    <input type="hidden" name="from" value="SECRETARY">
+                    <input type="hidden" name="from" value="ADMIN">
                     <input type="hidden" name="type" value="entourage_full">
                     <input type="hidden" name="id_pa" value="<?php echo $id_pa; ?>">
 
@@ -340,7 +340,7 @@ if (!empty($data['Date_Naissance'])) {
                 <h3><span class="icon">📂</span> Pièces Jointes</h3>
                 <form action="../INCLUDES/updateAdmission.php" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="type" value="documents">
-                    <input type="hidden" name="from" value="SECRETARY">
+                    <input type="hidden" name="from" value="ADMIN">
                     <input type="hidden" name="id_pa" value="<?php echo $id_pa; ?>">
                     <input type="hidden" name="pk" value="<?php echo $data['Num_SecuSocial_Patient']; ?>">
 
